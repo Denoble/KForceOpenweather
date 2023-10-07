@@ -1,21 +1,36 @@
 package com.gevcorst.k_forceopenweather
 
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class Hourly(
+    @Json(name = "clouds")
     val clouds: Int,
-    val dew_point: Double,
+    @Json(name = "dew_point")
+    val dewPoint: Double,
+    @Json(name = "dt")
     val dt: Int,
-    val feels_like: Double,
+    @Json(name = "feels_like")
+    val feelsLike: Double,
+    @Json(name = "humidity")
     val humidity: Int,
-    val pop: Double,
+    @Json(name = "pop")
+    val pop: Int,
+    @Json(name = "pressure")
     val pressure: Int,
+    @Json(name = "temp")
     val temp: Double,
+    @Json(name = "uvi")
     val uvi: Double,
+    @Json(name = "visibility")
     val visibility: Int,
+    @Json(name = "weather")
     val weather: List<Weather>,
-    val wind_deg: Int,
-    val wind_gust: Double,
-    val wind_speed: Double
+    @Json(name = "wind_deg")
+    val windDeg: Int,
+    @Json(name = "wind_gust")
+    val windGust: Double,
+    @Json(name = "wind_speed")
+    val windSpeed: Double
 )

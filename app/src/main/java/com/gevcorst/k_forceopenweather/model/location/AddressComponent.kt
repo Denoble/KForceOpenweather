@@ -1,7 +1,15 @@
 package com.gevcorst.k_forceopenweather.model.location
 
+
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
 data class AddressComponent(
-    val long_name: String,
-    val short_name: String,
+    @Json(name = "long_name")
+    val longName: String,
+    @Json(name = "short_name")
+    val shortName: String,
+    @Json(name = "types")
     val types: List<String>
 )

@@ -1,8 +1,10 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id ("dagger.hilt.android.plugin")
-    id ("kotlin-kapt")
+    id("dagger.hilt.android.plugin")
+    id("kotlin-kapt")
 }
 
 android {
@@ -15,7 +17,11 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
+        val GEOCODING_API_KEY =
+            gradleLocalProperties(rootDir).getProperty("GEOCODING_API_KEY")
+        buildConfigField("String", "GEOCODING_KEY", "$GEOCODING_API_KEY")
+        val OPEN_WEATHER_API_KEY = gradleLocalProperties(rootDir).getProperty("OPENWEATHERMAP_KEY")
+        buildConfigField("String", "OPEN_WEATHER_KEY", "$OPEN_WEATHER_API_KEY")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
@@ -40,6 +46,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.4.3"
@@ -65,18 +72,23 @@ dependencies {
 
     //hilt
     implementation("com.google.dagger:hilt-android:2.48.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
-    //moshi
-    //moshi
-    implementation ("com.squareup.moshi:moshi:1.15.0")
-    implementation ("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation ("androidx.core:core-ktx:1.12.0")
 
-    implementation ("com.google.code.gson:gson:2.10.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.48.1")
+
+    //moshi
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    implementation("androidx.legacy:legacy-support-v4:1.0.0")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("com.squareup.moshi:moshi:1.15.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.google.code.gson:gson:2.10.1")
     //retrofit
-    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-    implementation ("com.squareup.moshi:moshi-kotlin:1.15.0")
-    implementation ("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
+    implementation("com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2")
+    //navigation-compose
+    implementation ("androidx.navigation:navigation-compose:2.7.4")
+    implementation ("androidx.hilt:hilt-navigation-compose:1.1.0-beta01")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
