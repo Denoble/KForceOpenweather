@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">K-ForceOpenWeather</string>
     <string name="countryCodePrefix">country:</string>
+    <string name="generic_error">Error occurred, try again !</string>
 </resources>
