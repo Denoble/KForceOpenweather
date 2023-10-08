@@ -18,6 +18,7 @@ import com.gevcorst.k_forceopenweather.R.string as AppText
 import com.gevcorst.k_forceopenweather.services.LocationApi
 import com.gevcorst.k_forceopenweather.BuildConfig
 import com.gevcorst.k_forceopenweather.services.weatherApi
+import com.gevcorst.k_forceopenweather.ui.composables.Main
 import com.gevcorst.k_forceopenweather.ui.weatherScreen.MainViewModel
 import dagger.hilt.EntryPoint
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,6 +31,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val viewModel:MainViewModel = hiltViewModel()
+            viewModel.populateCountryDropDown(LocalContext.current)
             KForceOpenWeatherTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -37,11 +39,9 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Greeting("Android")
+                    Main(viewModel)
 
                 }
-
-                    viewModel.populateCountryDropDown(LocalContext.current)
-
                     printResponse()
             }
 
@@ -68,18 +68,24 @@ fun GreetingPreview() {
 fun printResponse(key:String =  BuildConfig.GEOCODING_KEY) {
     val scope = MainScope()
     scope.launch {
-        val jsonString =
-             LocationApi.locationRetrofitServices.getaddress(
-                "Bamako",
-                "${AppText.countryCodePrefix}" +"ML",key
-            ).await()
+        try{
+            val jsonString =
+                LocationApi.locationRetrofitServices.getaddress(
+                    "Bamako",
+                    "${AppText.countryCodePrefix}" +"ML",key
+                ).await()
 
-        val weather =  weatherApi.weatherRetrofitServices.getCurrentWeather(
-            jsonString.results[0].geometry.location.lat,
-            jsonString.results[0].geometry.location.lat,BuildConfig.OPEN_WEATHER_KEY).await()
+            val weather =  weatherApi.weatherRetrofitServices.getCurrentWeather(
+                jsonString.results[0].geometry.location.lat,
+                jsonString.results[0].geometry.location.lat,BuildConfig.OPEN_WEATHER_KEY).await()
 
-        Log.d("APINOERROR", "${jsonString.results}")
+            Log.d("APINOERROR", "${jsonString.results}")
 
-        Log.d("APINOERROR_WEATHER", "${weather.current.weather[0].icon}")
+            Log.d("APINOERROR_WEATHER", "${weather.current.weather[0].icon}")
+
+        }catch (e:Exception){
+            Log.d("APIERROR_WEATHER", "${e.printStackTrace()} ${e.localizedMessage ?: " "}")
+        }
+
     }
 }

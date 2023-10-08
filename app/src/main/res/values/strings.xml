@@ -2,4 +2,7 @@
     <string name="app_name">K-ForceOpenWeather</string>
     <string name="countryCodePrefix">country:</string>
     <string name="generic_error">Error occurred, try again !</string>
+    <string name="imageloader" >image loading from url</string>
+    <string name="refresh" >Refresh</string>
+    <string name="selectCountry" >Select country</string>
 </resources>

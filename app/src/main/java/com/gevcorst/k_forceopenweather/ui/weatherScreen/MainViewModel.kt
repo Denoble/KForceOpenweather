@@ -6,6 +6,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gevcorst.k_forceopenweather.Current
+import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.model.country.Country
 import com.gevcorst.k_forceopenweather.util.weatherScreen.ReadLocalJsonFile
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +21,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(): AppViewModel(){
-    var countries =  mutableStateOf(listOf(Country("","")))
+    var countries =  mutableStateOf(mutableListOf(""))
+    var countryCode = mutableStateOf("")
+    var uiCityState = mutableStateOf(City(""))
+        private set
+    var countryState = mutableStateOf(Country("",""))
+    var currentWeather = mutableStateOf(Current())
     fun populateCountryDropDown(appContext:Context) {
         viewModelScope.launch {
             val deferedCountries: Deferred<List<Country>> =
@@ -31,11 +38,25 @@ class MainViewModel @Inject constructor(): AppViewModel(){
                     ReadLocalJsonFile.mapJsonToCountry(jsonString)
                 }
             try {
-                countries.value = deferedCountries.await()
-                Log.i("MainViewModel","${countries}")
+                 deferedCountries.await().map {
+                    val tempString = it.name +" " + it.code
+                     countries.value.add(tempString)
+                }
+                Log.i("MainViewModel","${countries.value}")
             }catch(e:Exception){
 
             }
+        }
+    }
+    fun updateCountryCode(country: String){
+        try{
+            if(country.isNotEmpty()){
+                val countryCodeArray = country.split(" ")
+                val arraySize =  countryCodeArray.size
+                countryCode.value = countryCodeArray[arraySize-1]
+            }
+        }catch (e:Exception){
+
         }
     }
 

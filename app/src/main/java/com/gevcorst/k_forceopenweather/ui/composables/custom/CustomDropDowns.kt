@@ -63,37 +63,40 @@ fun DropdownContextMenu(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun DropdownSelector(
-    @StringRes label: Int,
     options: List<String>,
     selection: String,
     modifier: Modifier,
     onNewValue: (String) -> Unit
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOptionText by remember { mutableStateOf(options[0]) }
 
     ExposedDropdownMenuBox(
-        expanded = isExpanded,
-        modifier = modifier,
-        onExpandedChange = { isExpanded = !isExpanded }
+        expanded = expanded,
+        modifier=modifier,
+        onExpandedChange = { expanded = !expanded },
     ) {
         TextField(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.menuAnchor(),
             readOnly = true,
-            value = selection,
-            onValueChange = {},
-            label = { Text(stringResource(label)) },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(isExpanded) },
-            colors = dropdownColors()
+            value = selectedOptionText,
+            onValueChange = {onNewValue(selectedOptionText)},
+            label = { Text(selection) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
-
-        ExposedDropdownMenu(expanded = isExpanded, onDismissRequest = { isExpanded = false }) {
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
             options.forEach { selectionOption ->
                 DropdownMenuItem(
-                    text = { Text(text = selectionOption) },
+                    text = { Text(selectionOption) },
                     onClick = {
-                        onNewValue(selectionOption)
-                        isExpanded = false
-                    }
+                        selectedOptionText = selectionOption
+                        expanded = false
+                        onNewValue(selectedOptionText)
+                    },
                 )
             }
         }
@@ -111,3 +114,4 @@ private fun dropdownColors(): TextFieldColors {
         unfocusedLabelColor = MaterialTheme.colorScheme.primary
     )
 }
+

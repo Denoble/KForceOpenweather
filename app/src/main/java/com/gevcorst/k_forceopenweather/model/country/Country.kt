@@ -6,4 +6,5 @@ data class Country(
     val name: String,
     val code: String
 )
+data class City(val name:String)
 class Countries:ArrayList<Country>()

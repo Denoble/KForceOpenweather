@@ -72,6 +72,12 @@ dependencies {
 
     //hilt
     implementation("com.google.dagger:hilt-android:2.48.1")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.1.0-alpha13")
+    //glide Image painter
+    implementation ("com.github.bumptech.glide:glide:4.16.0")
+    implementation ("com.github.bumptech.glide:compose:1.0.0-alpha.3")
+    //coil async image loader
+    implementation("io.coil-kt:coil-compose:2.4.0")
 
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
 

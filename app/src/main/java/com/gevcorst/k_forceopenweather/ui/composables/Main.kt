@@ -27,13 +27,14 @@ import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomSnackbar
 import com.gevcorst.k_forceopenweather.ui.composables.custom.SnackbarMessage.Companion.showMessage
 import com.gevcorst.k_forceopenweather.ui.theme.KForceOpenWeatherTheme
 import com.gevcorst.k_forceopenweather.ui.weatherScreen.MainScreen
+import com.gevcorst.k_forceopenweather.ui.weatherScreen.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Main(){
+fun Main(viewModel: MainViewModel){
   KForceOpenWeatherTheme {
       Surface(color = MaterialTheme.colorScheme.secondary){
             val snackbarHostState = remember {SnackbarHostState()}
@@ -55,7 +56,7 @@ fun Main(){
                   startDestination = WeatherScreen.route,
                   modifier = Modifier.padding(paddingValue)
               ) {
-                  mainNavgraph(appState)
+                  mainNavgraph(appState,viewModel)
               }
           }
       }
@@ -123,9 +124,9 @@ class AppScreenState(
         }
     }
 }
-fun NavGraphBuilder.mainNavgraph(appState: AppScreenState) {
+fun NavGraphBuilder.mainNavgraph(appState: AppScreenState,viewModel: MainViewModel) {
     composable(route = WeatherScreen.route) {
-        MainScreen(
+        MainScreen(viewModel = viewModel
            /* navigate = { to, popUp -> appState.navigateAndPopUp(to, popUp) },
             toLogin = { route -> appState.navigate(route) }*/)
     }
