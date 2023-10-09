@@ -27,17 +27,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(): AppViewModel(){
-    var countries =  mutableStateOf(mutableListOf(""))
+class MainViewModel @Inject constructor() : AppViewModel() {
+    var countries = mutableStateOf(mutableListOf(""))
     val countryCode = mutableStateOf(Country().code)
-    var cordinate = mutableStateOf(Cordinate(0.0,0.0))
+    var cordinate = mutableStateOf(Cordinate(0.0, 0.0))
     var fahrenheitValue = mutableStateOf(0)
+    var  weatherIconPath = mutableStateOf("")
     var uiCityState = mutableStateOf(City())
         private set
-      private val name
-          get() = uiCityState.value.name
+    private val name
+        get() = uiCityState.value.name
     var currentWeather = mutableStateOf(Current())
-    fun populateCountryDropDown(appContext:Context) {
+    fun populateCountryDropDown(appContext: Context) {
         viewModelScope.launch {
             val deferedCountries: Deferred<List<Country>> =
                 async(Dispatchers.IO) {
@@ -48,54 +49,63 @@ class MainViewModel @Inject constructor(): AppViewModel(){
                     ReadLocalJsonFile.mapJsonToCountry(jsonString)
                 }
             try {
-                 deferedCountries.await().map {
-                    val tempString = it.name +" " + it.code
-                     countries.value.add(tempString)
+                deferedCountries.await().map {
+                    val tempString = it.name + " " + it.code
+                    countries.value.add(tempString)
                 }
-                Log.i("MainViewModel","${countries.value}")
-            }catch(e:Exception){
+                Log.i("MainViewModel", "${countries.value}")
+            } catch (e: Exception) {
 
             }
         }
     }
-    fun updateCountryCode(country: String){
-        try{
-            if(country.isNotEmpty()){
+
+    fun updateCountryCode(country: String) {
+        try {
+            if (country.isNotEmpty()) {
                 val countryCodeArray = country.split(" ")
-                val arraySize =  countryCodeArray.size
-                countryCode.value = countryCodeArray[arraySize-1]
+                val arraySize = countryCodeArray.size
+                countryCode.value = countryCodeArray[arraySize - 1]
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
 
         }
     }
-    fun updateCityName(newName:String){
+
+    fun updateCityName(newName: String) {
         uiCityState.value = City(name = newName)
     }
-    fun fetchLatitudeLongitude(cityName:String, countryCode:String = this.countryCode.value,
-                               key:String =  BuildConfig.GEOCODING_KEY) {
+
+    fun fetchLatitudeLongitude(
+        cityName: String, countryCode: String = this.countryCode.value,
+        key: String = BuildConfig.GEOCODING_KEY
+    ) {
         val scope = MainScope()
         scope.launch {
-            try{
+            try {
                 val jsonString =
                     LocationApi.locationRetrofitServices.getaddress(
                         cityName,
-                        countryCode,key
+                        countryCode, key
                     ).await()
-                cordinate.value = cordinate.value.copy(jsonString.results[0].geometry.location.lat,
-                    jsonString.results[0].geometry.location.lng)
+                cordinate.value = cordinate.value.copy(
+                    jsonString.results[0].geometry.location.lat,
+                    jsonString.results[0].geometry.location.lng
+                )
                 val weather = openWeatherData(BuildConfig.OPEN_WEATHER_KEY)
 
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 Log.d("APIERROR_WEATHER", "${e.printStackTrace()} ${e.localizedMessage ?: " "}")
             }
 
         }
     }
-private fun convertToFahrenheit(temp:Double){
-    fahrenheitValue.value = (((temp -273.0)*1.8)  + 32).toInt()
 
-}
+    private fun convertToFahrenheit(temp: Double) {
+        fahrenheitValue.value = (((temp - 273.0) * 1.8) + 32).toInt()
+
+    }
+
     private suspend fun openWeatherData(key: String): OpenWeatherData {
         val weather = weatherApi.weatherRetrofitServices.getCurrentWeather(
             cordinate.value.lat, cordinate.value.lng, key
@@ -120,21 +130,25 @@ private fun convertToFahrenheit(temp:Double){
 
             )
             convertToFahrenheit(currentWeather.value.temp)
+            updateWeatherIconPath(currentWeather.value.weather[0].icon)
             Log.d("CURRENT_WEATHER_ICON", "${currentWeather.value.weather[0].icon}")
-        }catch (e:Exception){
+        } catch (e: Exception) {
             Log.d("WEATHER_ERROR", "${e.stackTraceToString()}")
         }
-
         return weather
+    }
+    private fun updateWeatherIconPath(icon:String){
+       weatherIconPath.value = "https://openweathermap.org/img/w/$icon.png"
     }
 
 }
-    open class AppViewModel() : ViewModel() {
+
+open class AppViewModel() : ViewModel() {
     fun launchCatching(snackbar: Boolean = true, block: suspend CoroutineScope.() -> Unit) =
         viewModelScope.launch(
             CoroutineExceptionHandler { _, throwable ->
                 if (snackbar) {
-                   // CustomSnackbar.showMessage(throwable.getErrorMessage())
+                    // CustomSnackbar.showMessage(throwable.getErrorMessage())
                 }
                 //logService.logNonFatalCrash(throwable)
             },

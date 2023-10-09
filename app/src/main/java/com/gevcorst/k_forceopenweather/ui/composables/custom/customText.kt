@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.gevcorst.k_forceopenweather.R
 import com.gevcorst.k_forceopenweather.R.drawable as AppIcon
 import com.gevcorst.k_forceopenweather.R.string as AppText
 
@@ -39,7 +40,8 @@ fun CustomOutlinedTextField(
     label: String,
     value:String,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    placeHolderText: String, modifier: Modifier,
+    placeHolderText: String,
+    modifier: Modifier,
     keyboardType: KeyboardType,
     onTextChange:(text:String)->Unit
 
@@ -57,20 +59,48 @@ fun CustomOutlinedTextField(
     )
 }
 
+@Composable
+fun CustomImage(
+    url: String,
+    contentScale: ContentScale = ContentScale.Fit,
+    modifier: Modifier
+) {
+    val painter =
+        rememberAsyncImagePainter(
+            ImageRequest.Builder //Used while loading
+                (LocalContext.current).data(data = url)
+                .apply(block = fun ImageRequest.Builder.() {
+                    crossfade(true) //Crossfade animation between images
+                    placeholder(R.drawable.loading_animation) //Used while loading
+                    fallback(R.drawable.ic_baseline_broken_image_24) //Used if data is null
+                    error(R.drawable.ic_baseline_broken_image_24) //Used when loading returns with error
+                }).build()
+        )
 
+
+    Image(
+        modifier = modifier,
+        //Use painter in Image composable
+        painter = painter,
+        contentScale = contentScale,
+        contentDescription = stringResource(id = R.string.imageloader)
+    )
+}
 
 @Composable
 fun CustomText(
-    text: String, modifier: Modifier, onClickAction: () -> Unit,
+    text: String, modifier: Modifier,
+    textStyle:TextStyle = TextStyle(
+        fontFamily = FontFamily.Serif,
+        fontWeight = FontWeight.Bold, fontSize = 13.sp,
+    ),
+    onClickAction: () -> Unit,
     textAlign: TextAlign = TextAlign.Start
 ) {
     Text(
         text = text, modifier = modifier.clickable {
             onClickAction.invoke()
-        }, style = TextStyle(
-            fontFamily = FontFamily.Serif,
-            fontWeight = FontWeight.Bold, fontSize = 13.sp,
-        ), textAlign = textAlign
+        }, style = textStyle, textAlign = textAlign
     )
 }
 
@@ -89,7 +119,7 @@ fun BasicButton(@StringRes text: Int, modifier: Modifier, action: () -> Unit) {
     }
 }
 
-@Composable
+/*@Composable
 fun CustomImage(
     url: String,
     contentScale: ContentScale = ContentScale.Fit,
@@ -116,4 +146,4 @@ fun CustomImage(
         contentDescription = stringResource(id = AppText.imageloader)
     )
 
-}
+}*/

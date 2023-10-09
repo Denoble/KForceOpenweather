@@ -129,9 +129,6 @@ fun NavGraphBuilder.mainNavgraph(appState: AppScreenState) {
         val context = LocalContext.current
         MainScreen(
            /* navigate = { to, popUp -> appState.navigateAndPopUp(to, popUp) },
-            toLogin = { route -> appState.navigate(route) }*/){mainViewModel ->
-            mainViewModel.populateCountryDropDown(context)
-
-        }
+            toLogin = { route -> appState.navigate(route) }*/)
     }
 }

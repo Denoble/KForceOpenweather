@@ -6,6 +6,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -19,8 +20,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 
@@ -36,9 +41,8 @@ import com.gevcorst.k_forceopenweather.ui.theme.MilkyWhite
 import com.gevcorst.k_forceopenweather.R.string as AppText
 
 @Composable
-fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
-               loadCountryList:(viewModel:MainViewModel) ->Unit) {
-    loadCountryList(viewModel)
+fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
+
     val cityState = viewModel.uiCityState
     Card(
         modifier = Modifier
@@ -52,25 +56,32 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
     ) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val (tempText,tempImage,cityText,countryDropDown,refreshButton,cityName) = createRefs()
-            CustomText(text = viewModel.fahrenheitValue.value.toString() ,
-                modifier = Modifier.constrainAs(tempText){
+            CustomText(text = viewModel.fahrenheitValue.value.toString() +
+                   stringResource(id =  AppText.fahrenheit_symbol),
+                modifier = Modifier
+                    .constrainAs(tempText){
                 top.linkTo(parent.top, margin = 16.dp)
                     start.linkTo(parent.start, margin = 16.dp)
-                    width = Dimension.value(40.dp)
-                    height = Dimension.value(40.dp)
+                    width = Dimension.wrapContent
+                    height = Dimension.wrapContent
 
-            }, onClickAction = { /*TODO*/ })
-            CustomImage(url = "", contentScale = ContentScale.Crop, modifier = Modifier
+            },
+                textStyle = TextStyle(
+                    fontSize = 40.sp,fontWeight = FontWeight.Bold, fontFamily = FontFamily.Serif),
+                onClickAction = { /*TODO*/ })
+            CustomImage(url = viewModel.weatherIconPath.value,
+                contentScale = ContentScale.Crop, modifier = Modifier
                 .clip(RoundedCornerShape(16.dp))
                 .constrainAs(tempImage) {
                     top.linkTo(tempText.top)
                     start.linkTo(tempText.end)
-                    width = Dimension.value(50.dp)
-                    height = Dimension.value(50.dp)
+                    width = Dimension.value(100.dp)
+                    height = Dimension.value(100.dp)
                 })
-            CustomText(text = viewModel.uiCityState.value.name +" " + viewModel.uiCityState.value.name,
+            CustomText(text = viewModel.uiCityState.value.name +" "
+                    + viewModel.uiCityState.value.name,
                  modifier =   Modifier.constrainAs(cityText){
-                     top.linkTo(tempText.bottom, margin = 16.dp)
+                     top.linkTo(tempImage.bottom, margin = 16.dp)
                      start.linkTo(tempText.start)
                      end.linkTo(parent.end, margin = 16.dp)
                      width = Dimension.fillToConstraints
@@ -83,8 +94,6 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
                 keyboardType = KeyboardType.Text,
                 onTextChange = {
                                viewModel.updateCityName(it)
-                                viewModel.fetchLatitudeLongitude(
-                                    viewModel.uiCityState.value.name)
                 },
                modifier = Modifier.constrainAs(cityName){
                    start.linkTo(cityText.start)
@@ -99,7 +108,8 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
                     width = Dimension.fillToConstraints
                     height = Dimension.wrapContent
                 }) {
-
+                viewModel.fetchLatitudeLongitude(
+                    viewModel.uiCityState.value.name)
             }
         }
     }

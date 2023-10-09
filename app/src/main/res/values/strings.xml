@@ -6,4 +6,6 @@
     <string name="refresh" >Refresh</string>
     <string name="selectCountry" >Select country</string>
     <string name="enter_city">Enter US city name</string>
+    <string name="fahrenheit_symbol"> \u2109</string>
+    <string name="celcius_symbol"> \u2103</string>
 </resources>
