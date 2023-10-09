@@ -5,5 +5,5 @@
     <string name="imageloader" >image loading from url</string>
     <string name="refresh" >Refresh</string>
     <string name="selectCountry" >Select country</string>
-    <string name="enter_city">Enter city name</string>
+    <string name="enter_city">Enter US city name</string>
 </resources>

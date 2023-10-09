@@ -31,6 +31,7 @@ class MainViewModel @Inject constructor(): AppViewModel(){
     var countries =  mutableStateOf(mutableListOf(""))
     val countryCode = mutableStateOf(Country().code)
     var cordinate = mutableStateOf(Cordinate(0.0,0.0))
+    var fahrenheitValue = mutableStateOf(0)
     var uiCityState = mutableStateOf(City())
         private set
       private val name
@@ -91,7 +92,10 @@ class MainViewModel @Inject constructor(): AppViewModel(){
 
         }
     }
+private fun convertToFahrenheit(temp:Double){
+    fahrenheitValue.value = (((temp -273.0)*1.8)  + 32).toInt()
 
+}
     private suspend fun openWeatherData(key: String): OpenWeatherData {
         val weather = weatherApi.weatherRetrofitServices.getCurrentWeather(
             cordinate.value.lat, cordinate.value.lng, key
@@ -99,7 +103,8 @@ class MainViewModel @Inject constructor(): AppViewModel(){
         try {
             currentWeather.value = currentWeather.value.copy(
                 clouds = weather.current.clouds,
-                dewPoint = weather.current.dewPoint, dt = weather.current.dt,
+                dewPoint = weather.current.dewPoint,
+                dt = weather.current.dt,
                 feelsLike = weather.current.feelsLike,
                 humidity = weather.current.humidity,
                 pressure = weather.current.pressure,
@@ -114,6 +119,7 @@ class MainViewModel @Inject constructor(): AppViewModel(){
                 windSpeed = weather.current.windSpeed
 
             )
+            convertToFahrenheit(currentWeather.value.temp)
             Log.d("CURRENT_WEATHER_ICON", "${currentWeather.value.weather[0].icon}")
         }catch (e:Exception){
             Log.d("WEATHER_ERROR", "${e.stackTraceToString()}")

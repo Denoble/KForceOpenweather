@@ -52,7 +52,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
     ) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             val (tempText,tempImage,cityText,countryDropDown,refreshButton,cityName) = createRefs()
-            CustomText(text = viewModel.currentWeather.value.temp.toString() ,
+            CustomText(text = viewModel.fahrenheitValue.value.toString() ,
                 modifier = Modifier.constrainAs(tempText){
                 top.linkTo(parent.top, margin = 16.dp)
                     start.linkTo(parent.start, margin = 16.dp)
