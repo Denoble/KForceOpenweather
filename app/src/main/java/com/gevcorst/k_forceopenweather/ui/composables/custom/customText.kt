@@ -44,7 +44,7 @@ fun CustomOutlinedTextField(
     onTextChange:(text:String)->Unit
 
 ) {
-    OutlinedTextField(
+    TextField(
         value = value,
         modifier = modifier,
         label = { Text(text = label) },
@@ -56,6 +56,7 @@ fun CustomOutlinedTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
 }
+
 
 
 @Composable

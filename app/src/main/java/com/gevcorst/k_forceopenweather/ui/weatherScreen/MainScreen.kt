@@ -39,6 +39,7 @@ import com.gevcorst.k_forceopenweather.R.string as AppText
 fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
                loadCountryList:(viewModel:MainViewModel) ->Unit) {
     loadCountryList(viewModel)
+    val cityState = viewModel.uiCityState
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -55,8 +56,8 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
                 modifier = Modifier.constrainAs(tempText){
                 top.linkTo(parent.top, margin = 16.dp)
                     start.linkTo(parent.start, margin = 16.dp)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.wrapContent
+                    width = Dimension.value(40.dp)
+                    height = Dimension.value(40.dp)
 
             }, onClickAction = { /*TODO*/ })
             CustomImage(url = "", contentScale = ContentScale.Crop, modifier = Modifier
@@ -64,6 +65,8 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
                 .constrainAs(tempImage) {
                     top.linkTo(tempText.top)
                     start.linkTo(tempText.end)
+                    width = Dimension.value(50.dp)
+                    height = Dimension.value(50.dp)
                 })
             CustomText(text = viewModel.uiCityState.value.name +" " + viewModel.uiCityState.value.name,
                  modifier =   Modifier.constrainAs(cityText){
@@ -74,34 +77,24 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
                      height = Dimension.wrapContent
                  }, onClickAction = { /*TODO*/ })
             CustomOutlinedTextField(
-                label = "Enter city name",
-                value = viewModel::uiCityState.name,
-               placeHolderText = "Enter city name",
-                keyboardType = KeyboardType.Email,
-                onTextChange = viewModel::updateCityName,
+                label = stringResource(id = AppText.enter_city),
+                value = cityState.value.name,
+               placeHolderText = stringResource(id = AppText.enter_city),
+                keyboardType = KeyboardType.Text,
+                onTextChange = {
+                               viewModel.updateCityName(it)
+                                viewModel.fetchLatitudeLongitude(
+                                    viewModel.uiCityState.value.name)
+                },
                modifier = Modifier.constrainAs(cityName){
                    start.linkTo(cityText.start)
                    top.linkTo(cityText.top)
                    width = Dimension.wrapContent
                    height = Dimension.wrapContent
                })
-            DropdownSelector( options = viewModel.countries.value,
-               selection = stringResource( AppText.selectCountry),
-                modifier =  Modifier.constrainAs(countryDropDown){
-                    top.linkTo(cityName.bottom, margin = 16.dp)
-                    start.linkTo(cityName.start)
-                    end.linkTo(parent.end, margin = 16.dp)
-                    width = Dimension.fillToConstraints
-                    height = Dimension.wrapContent
-
-                }
-                , onNewValue   = {
-                    viewModel.updateCountryCode(it)
-                    Log.i("COUNTRYCODE",viewModel.countryCode.value)
-                })
             BasicButton(text = AppText.refresh, modifier = Modifier
                 .constrainAs(refreshButton){
-                    top.linkTo(countryDropDown.bottom, margin = 16.dp)
+                    top.linkTo(cityName.bottom, margin = 16.dp)
                     end.linkTo(parent.end, margin = 16.dp)
                     width = Dimension.fillToConstraints
                     height = Dimension.wrapContent

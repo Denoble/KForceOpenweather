@@ -38,11 +38,8 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
                     Main()
-
                 }
-                    printResponse()
             }
 
         }
@@ -62,30 +59,5 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 fun GreetingPreview() {
     KForceOpenWeatherTheme {
         Greeting("Android")
-    }
-}
-
-fun printResponse(key:String =  BuildConfig.GEOCODING_KEY) {
-    val scope = MainScope()
-    scope.launch {
-        try{
-            val jsonString =
-                LocationApi.locationRetrofitServices.getaddress(
-                    "Bamako",
-                    "${AppText.countryCodePrefix}" +"ML",key
-                ).await()
-
-            val weather =  weatherApi.weatherRetrofitServices.getCurrentWeather(
-                jsonString.results[0].geometry.location.lat,
-                jsonString.results[0].geometry.location.lat,BuildConfig.OPEN_WEATHER_KEY).await()
-
-            Log.d("APINOERROR", "${jsonString.results}")
-
-            Log.d("APINOERROR_WEATHER", "${weather.current.weather[0].icon}")
-
-        }catch (e:Exception){
-            Log.d("APIERROR_WEATHER", "${e.printStackTrace()} ${e.localizedMessage ?: " "}")
-        }
-
     }
 }

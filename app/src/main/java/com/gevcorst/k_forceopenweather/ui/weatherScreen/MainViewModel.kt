@@ -6,15 +6,22 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gevcorst.k_forceopenweather.BuildConfig
 import com.gevcorst.k_forceopenweather.Current
+import com.gevcorst.k_forceopenweather.OpenWeatherData
+import com.gevcorst.k_forceopenweather.R
 import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.model.country.Country
+import com.gevcorst.k_forceopenweather.model.location.Cordinate
+import com.gevcorst.k_forceopenweather.services.LocationApi
+import com.gevcorst.k_forceopenweather.services.weatherApi
 import com.gevcorst.k_forceopenweather.util.weatherScreen.ReadLocalJsonFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -22,9 +29,12 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(): AppViewModel(){
     var countries =  mutableStateOf(mutableListOf(""))
-    var countryCode = mutableStateOf("")
-    var uiCityState = mutableStateOf(City(""))
+    val countryCode = mutableStateOf(Country().code)
+    var cordinate = mutableStateOf(Cordinate(0.0,0.0))
+    var uiCityState = mutableStateOf(City())
         private set
+      private val name
+          get() = uiCityState.value.name
     var currentWeather = mutableStateOf(Current())
     fun populateCountryDropDown(appContext:Context) {
         viewModelScope.launch {
@@ -58,8 +68,58 @@ class MainViewModel @Inject constructor(): AppViewModel(){
 
         }
     }
-    fun updateCityName(name:String){
-        uiCityState.value = uiCityState.value.copy(name = name)
+    fun updateCityName(newName:String){
+        uiCityState.value = City(name = newName)
+    }
+    fun fetchLatitudeLongitude(cityName:String, countryCode:String = this.countryCode.value,
+                               key:String =  BuildConfig.GEOCODING_KEY) {
+        val scope = MainScope()
+        scope.launch {
+            try{
+                val jsonString =
+                    LocationApi.locationRetrofitServices.getaddress(
+                        cityName,
+                        countryCode,key
+                    ).await()
+                cordinate.value = cordinate.value.copy(jsonString.results[0].geometry.location.lat,
+                    jsonString.results[0].geometry.location.lng)
+                val weather = openWeatherData(BuildConfig.OPEN_WEATHER_KEY)
+
+            }catch (e:Exception){
+                Log.d("APIERROR_WEATHER", "${e.printStackTrace()} ${e.localizedMessage ?: " "}")
+            }
+
+        }
+    }
+
+    private suspend fun openWeatherData(key: String): OpenWeatherData {
+        val weather = weatherApi.weatherRetrofitServices.getCurrentWeather(
+            cordinate.value.lat, cordinate.value.lng, key
+        ).await()
+        try {
+            currentWeather.value = currentWeather.value.copy(
+                clouds = weather.current.clouds,
+                dewPoint = weather.current.dewPoint, dt = weather.current.dt,
+                feelsLike = weather.current.feelsLike,
+                humidity = weather.current.humidity,
+                pressure = weather.current.pressure,
+                sunrise = weather.current.sunrise,
+                sunset = weather.current.sunset,
+                temp = weather.current.temp,
+                uvi = weather.current.uvi,
+                visibility = weather.current.visibility,
+                weather = weather.current.weather,
+                windDeg = weather.current.windDeg,
+                windGust = weather.current.windGust,
+                windSpeed = weather.current.windSpeed
+
+            )
+            Log.d("CURRENT_WEATHER_ICON", "${currentWeather.value.weather[0].icon}")
+        }catch (e:Exception){
+            Log.d("WEATHER_ERROR", "${e.stackTraceToString()}")
+        }
+
+        return weather
     }
 
 }

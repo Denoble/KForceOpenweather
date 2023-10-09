@@ -6,7 +6,7 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class Hourly(
     @Json(name = "clouds")
-    val clouds: Int,
+    val clouds: Double,
     @Json(name = "dew_point")
     val dewPoint: Double,
     @Json(name = "dt")
@@ -14,9 +14,9 @@ data class Hourly(
     @Json(name = "feels_like")
     val feelsLike: Double,
     @Json(name = "humidity")
-    val humidity: Int,
+    val humidity: Double,
     @Json(name = "pop")
-    val pop: Int,
+    val pop: Double,
     @Json(name = "pressure")
     val pressure: Int,
     @Json(name = "temp")
@@ -24,11 +24,11 @@ data class Hourly(
     @Json(name = "uvi")
     val uvi: Double,
     @Json(name = "visibility")
-    val visibility: Int,
+    val visibility: Double,
     @Json(name = "weather")
     val weather: List<Weather>,
     @Json(name = "wind_deg")
-    val windDeg: Int,
+    val windDeg: Double,
     @Json(name = "wind_gust")
     val windGust: Double,
     @Json(name = "wind_speed")
