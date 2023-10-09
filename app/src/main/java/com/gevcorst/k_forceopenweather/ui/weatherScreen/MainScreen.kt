@@ -1,24 +1,25 @@
 package com.gevcorst.k_forceopenweather.ui.weatherScreen
 
-import android.util.Log
-import androidx.annotation.StringRes
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -32,6 +33,7 @@ import androidx.constraintlayout.compose.Dimension
 
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gevcorst.k_forceopenweather.ui.composables.custom.BasicButton
+import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomAlertDialog
 import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomImage
 import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomOutlinedTextField
 import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomText
@@ -44,6 +46,7 @@ import com.gevcorst.k_forceopenweather.R.string as AppText
 fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
 
     val cityState = viewModel.uiCityState
+    val countryCode = stringResource(id = AppText.countryCodeUS)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -71,13 +74,13 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                 onClickAction = { /*TODO*/ })
             CustomImage(url = viewModel.weatherIconPath.value,
                 contentScale = ContentScale.Crop, modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .constrainAs(tempImage) {
-                    top.linkTo(tempText.top)
-                    start.linkTo(tempText.end)
-                    width = Dimension.value(100.dp)
-                    height = Dimension.value(100.dp)
-                })
+                    .clip(RoundedCornerShape(16.dp))
+                    .constrainAs(tempImage) {
+                        top.linkTo(tempText.top)
+                        start.linkTo(tempText.end)
+                        width = Dimension.value(100.dp)
+                        height = Dimension.value(100.dp)
+                    })
             CustomText(text = viewModel.uiCityState.value.name +" "
                     + viewModel.uiCityState.value.name,
                  modifier =   Modifier.constrainAs(cityText){
@@ -109,7 +112,21 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                     height = Dimension.wrapContent
                 }) {
                 viewModel.fetchLatitudeLongitude(
-                    viewModel.uiCityState.value.name)
+                    viewModel.uiCityState.value.name, countryCode)
+            }
+            if(viewModel.wrongCity.value){
+                val openAlertDialog = remember { mutableStateOf(false) }
+                CustomAlertDialog(
+                    onDismissRequest = { openAlertDialog.value = false
+                        viewModel.upDateWrongCity(false)},
+                    onConfirmation = {
+                        openAlertDialog.value = false
+                        viewModel.upDateWrongCity(false)
+                    },
+                    dialogTitle = stringResource(id = AppText.dialog_title),
+                    dialogText = stringResource(id = AppText.dialog_message),
+                    icon = Icons.Default.Warning
+                )
             }
         }
     }

@@ -32,7 +32,8 @@ class MainViewModel @Inject constructor() : AppViewModel() {
     val countryCode = mutableStateOf(Country().code)
     var cordinate = mutableStateOf(Cordinate(0.0, 0.0))
     var fahrenheitValue = mutableStateOf(0)
-    var  weatherIconPath = mutableStateOf("")
+    var weatherIconPath = mutableStateOf("")
+    var wrongCity = mutableStateOf(false)
     var uiCityState = mutableStateOf(City())
         private set
     private val name
@@ -77,7 +78,7 @@ class MainViewModel @Inject constructor() : AppViewModel() {
     }
 
     fun fetchLatitudeLongitude(
-        cityName: String, countryCode: String = this.countryCode.value,
+        cityName: String, countryCode: String,
         key: String = BuildConfig.GEOCODING_KEY
     ) {
         val scope = MainScope()
@@ -85,20 +86,32 @@ class MainViewModel @Inject constructor() : AppViewModel() {
             try {
                 val jsonString =
                     LocationApi.locationRetrofitServices.getaddress(
-                        cityName,
-                        countryCode, key
+                        cityName, countryCode, key
                     ).await()
                 cordinate.value = cordinate.value.copy(
                     jsonString.results[0].geometry.location.lat,
                     jsonString.results[0].geometry.location.lng
                 )
-                val weather = openWeatherData(BuildConfig.OPEN_WEATHER_KEY)
+                when (jsonString.results[0].addressComponents[0].types[0]) {
+                    AddressType.LOCALITY.type -> {
+                        openWeatherData(BuildConfig.OPEN_WEATHER_KEY)
+                    }
+
+                    AddressType.Country.type -> {
+                        upDateWrongCity(true)
+                    }
+                }
+                Log.i("LONGITUDE_SUCCESS", "$countryCode ${jsonString}")
 
             } catch (e: Exception) {
                 Log.d("APIERROR_WEATHER", "${e.printStackTrace()} ${e.localizedMessage ?: " "}")
             }
 
         }
+    }
+
+    fun upDateWrongCity(isWrong: Boolean) {
+        wrongCity.value = isWrong
     }
 
     private fun convertToFahrenheit(temp: Double) {
@@ -137,8 +150,9 @@ class MainViewModel @Inject constructor() : AppViewModel() {
         }
         return weather
     }
-    private fun updateWeatherIconPath(icon:String){
-       weatherIconPath.value = "https://openweathermap.org/img/w/$icon.png"
+
+    private fun updateWeatherIconPath(icon: String) {
+        weatherIconPath.value = "https://openweathermap.org/img/w/$icon.png"
     }
 
 }
@@ -154,4 +168,9 @@ open class AppViewModel() : ViewModel() {
             },
             block = block
         )
+}
+
+enum class AddressType(val type: String) {
+    Country("country"),
+    LOCALITY("locality")
 }

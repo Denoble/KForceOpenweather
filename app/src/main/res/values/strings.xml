@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">K-ForceOpenWeather</string>
-    <string name="countryCodePrefix">country:</string>
+    <string name="countryCodeUS">country:US</string>
     <string name="generic_error">Error occurred, try again !</string>
     <string name="imageloader" >image loading from url</string>
     <string name="refresh" >Refresh</string>
@@ -8,4 +8,6 @@
     <string name="enter_city">Enter US city name</string>
     <string name="fahrenheit_symbol"> \u2109</string>
     <string name="celcius_symbol"> \u2103</string>
+    <string name="dialog_title">Wrong US city </string>
+    <string name="dialog_message">City entered may not be a US city</string>
 </resources>

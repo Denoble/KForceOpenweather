@@ -59,33 +59,6 @@ fun CustomOutlinedTextField(
     )
 }
 
-@Composable
-fun CustomImage(
-    url: String,
-    contentScale: ContentScale = ContentScale.Fit,
-    modifier: Modifier
-) {
-    val painter =
-        rememberAsyncImagePainter(
-            ImageRequest.Builder //Used while loading
-                (LocalContext.current).data(data = url)
-                .apply(block = fun ImageRequest.Builder.() {
-                    crossfade(true) //Crossfade animation between images
-                    placeholder(R.drawable.loading_animation) //Used while loading
-                    fallback(R.drawable.ic_baseline_broken_image_24) //Used if data is null
-                    error(R.drawable.ic_baseline_broken_image_24) //Used when loading returns with error
-                }).build()
-        )
-
-
-    Image(
-        modifier = modifier,
-        //Use painter in Image composable
-        painter = painter,
-        contentScale = contentScale,
-        contentDescription = stringResource(id = R.string.imageloader)
-    )
-}
 
 @Composable
 fun CustomText(
@@ -119,7 +92,7 @@ fun BasicButton(@StringRes text: Int, modifier: Modifier, action: () -> Unit) {
     }
 }
 
-/*@Composable
+@Composable
 fun CustomImage(
     url: String,
     contentScale: ContentScale = ContentScale.Fit,
@@ -146,4 +119,4 @@ fun CustomImage(
         contentDescription = stringResource(id = AppText.imageloader)
     )
 
-}*/
+}
