@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Greeting("Android")
-                    Main(viewModel)
+                    Main()
 
                 }
                     printResponse()

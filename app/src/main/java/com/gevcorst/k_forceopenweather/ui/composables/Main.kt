@@ -34,10 +34,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Main(viewModel: MainViewModel){
+fun Main(){
   KForceOpenWeatherTheme {
       Surface(color = MaterialTheme.colorScheme.secondary){
-            val snackbarHostState = remember {SnackbarHostState()}
+          val snackbarHostState = remember {SnackbarHostState()}
           val appState = rememberAppState(snackbarHostState = snackbarHostState)
           Scaffold(
               snackbarHost = {
@@ -56,7 +56,7 @@ fun Main(viewModel: MainViewModel){
                   startDestination = WeatherScreen.route,
                   modifier = Modifier.padding(paddingValue)
               ) {
-                  mainNavgraph(appState,viewModel)
+                  mainNavgraph(appState)
               }
           }
       }
@@ -97,7 +97,7 @@ class AppScreenState(
         coroutineScope.launch {
             customSnackbar.snackbarMessages.filterNotNull().collect { snackbarMessage ->
                 val text = snackbarMessage.showMessage (resources)
-                snackbarHostState.showSnackbar(text)
+                snackbarHostState.showSnackbar("HELLO WELCOME !")
             }
         }
     }
@@ -124,10 +124,14 @@ class AppScreenState(
         }
     }
 }
-fun NavGraphBuilder.mainNavgraph(appState: AppScreenState,viewModel: MainViewModel) {
+fun NavGraphBuilder.mainNavgraph(appState: AppScreenState) {
     composable(route = WeatherScreen.route) {
-        MainScreen(viewModel = viewModel
+        val context = LocalContext.current
+        MainScreen(
            /* navigate = { to, popUp -> appState.navigateAndPopUp(to, popUp) },
-            toLogin = { route -> appState.navigate(route) }*/)
+            toLogin = { route -> appState.navigate(route) }*/){mainViewModel ->
+            mainViewModel.populateCountryDropDown(context)
+
+        }
     }
 }

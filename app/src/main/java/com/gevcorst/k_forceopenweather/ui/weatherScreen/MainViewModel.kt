@@ -25,7 +25,6 @@ class MainViewModel @Inject constructor(): AppViewModel(){
     var countryCode = mutableStateOf("")
     var uiCityState = mutableStateOf(City(""))
         private set
-    var countryState = mutableStateOf(Country("",""))
     var currentWeather = mutableStateOf(Current())
     fun populateCountryDropDown(appContext:Context) {
         viewModelScope.launch {
@@ -58,6 +57,9 @@ class MainViewModel @Inject constructor(): AppViewModel(){
         }catch (e:Exception){
 
         }
+    }
+    fun updateCityName(name:String){
+        uiCityState.value = uiCityState.value.copy(name = name)
     }
 
 }

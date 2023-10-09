@@ -3,10 +3,12 @@ package com.gevcorst.k_forceopenweather.ui.composables.custom
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -21,6 +23,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
@@ -31,20 +35,28 @@ import com.gevcorst.k_forceopenweather.R.string as AppText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CustomTextField(
+fun CustomOutlinedTextField(
     label: String,
-    placeHolderText: String,
-    modifier: Modifier
+    value:String,
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    placeHolderText: String, modifier: Modifier,
+    keyboardType: KeyboardType,
+    onTextChange:(text:String)->Unit
+
 ) {
-    var text by remember { mutableStateOf("") }
-    TextField(
-        value = text,
-        onValueChange = { newValue -> text = newValue },
+    OutlinedTextField(
+        value = value,
         modifier = modifier,
-        label = { Text(label) },
-        placeholder = { Text(placeHolderText) },
+        label = { Text(text = label) },
+        placeholder = { Text(text = placeHolderText) },
+        visualTransformation = visualTransformation,
+        onValueChange = {
+            onTextChange(it)
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
 }
+
 
 @Composable
 fun CustomText(

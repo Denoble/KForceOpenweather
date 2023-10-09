@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
@@ -27,15 +28,17 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.gevcorst.k_forceopenweather.ui.composables.custom.BasicButton
 import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomImage
+import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomOutlinedTextField
 import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomText
-import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomTextField
 import com.gevcorst.k_forceopenweather.ui.composables.custom.DropdownContextMenu
 import com.gevcorst.k_forceopenweather.ui.composables.custom.DropdownSelector
 import com.gevcorst.k_forceopenweather.ui.theme.MilkyWhite
 import com.gevcorst.k_forceopenweather.R.string as AppText
 
 @Composable
-fun MainScreen(viewModel: MainViewModel) {
+fun MainScreen(viewModel: MainViewModel = hiltViewModel(),
+               loadCountryList:(viewModel:MainViewModel) ->Unit) {
+    loadCountryList(viewModel)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -70,8 +73,12 @@ fun MainScreen(viewModel: MainViewModel) {
                      width = Dimension.fillToConstraints
                      height = Dimension.wrapContent
                  }, onClickAction = { /*TODO*/ })
-           CustomTextField(label = "Enter city name",
+            CustomOutlinedTextField(
+                label = "Enter city name",
+                value = viewModel::uiCityState.name,
                placeHolderText = "Enter city name",
+                keyboardType = KeyboardType.Email,
+                onTextChange = viewModel::updateCityName,
                modifier = Modifier.constrainAs(cityName){
                    start.linkTo(cityText.start)
                    top.linkTo(cityText.top)
