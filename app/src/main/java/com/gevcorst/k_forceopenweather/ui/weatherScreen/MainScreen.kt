@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -37,8 +36,6 @@ import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomAlertDialog
 import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomImage
 import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomOutlinedTextField
 import com.gevcorst.k_forceopenweather.ui.composables.custom.CustomText
-import com.gevcorst.k_forceopenweather.ui.composables.custom.DropdownContextMenu
-import com.gevcorst.k_forceopenweather.ui.composables.custom.DropdownSelector
 import com.gevcorst.k_forceopenweather.ui.theme.MilkyWhite
 import com.gevcorst.k_forceopenweather.R.string as AppText
 
@@ -47,6 +44,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
 
     val cityState = viewModel.uiCityState
     val countryCode = stringResource(id = AppText.countryCodeUS)
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -58,7 +56,7 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
         colors = CardDefaults.cardColors(containerColor = MilkyWhite)
     ) {
         ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-            val (tempText,tempImage,cityText,countryDropDown,refreshButton,cityName) = createRefs()
+            val (tempText,tempImage,cityText,refreshButton,cityName) = createRefs()
             CustomText(text = viewModel.fahrenheitValue.value.toString() +
                    stringResource(id =  AppText.fahrenheit_symbol),
                 modifier = Modifier

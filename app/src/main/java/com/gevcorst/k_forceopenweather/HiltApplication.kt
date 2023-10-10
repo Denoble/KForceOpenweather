@@ -5,5 +5,4 @@ import dagger.hilt.android.HiltAndroidApp
 
 
 @HiltAndroidApp
-class KforeWeather: Application() {
-}
+class KforeWeather: Application()

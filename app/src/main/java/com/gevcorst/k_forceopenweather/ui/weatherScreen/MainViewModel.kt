@@ -2,32 +2,33 @@ package com.gevcorst.k_forceopenweather.ui.weatherScreen
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gevcorst.k_forceopenweather.BuildConfig
 import com.gevcorst.k_forceopenweather.Current
 import com.gevcorst.k_forceopenweather.OpenWeatherData
-import com.gevcorst.k_forceopenweather.R
 import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.model.country.Country
 import com.gevcorst.k_forceopenweather.model.location.Cordinate
 import com.gevcorst.k_forceopenweather.services.LocationApi
+import com.gevcorst.k_forceopenweather.services.UserDataStore
 import com.gevcorst.k_forceopenweather.services.weatherApi
+import com.gevcorst.k_forceopenweather.ui.composables.resources
 import com.gevcorst.k_forceopenweather.util.weatherScreen.ReadLocalJsonFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.gevcorst.k_forceopenweather.R.string as AppText
 
 @HiltViewModel
-class MainViewModel @Inject constructor() : AppViewModel() {
+class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppViewModel() {
     var countries = mutableStateOf(mutableListOf(""))
     val countryCode = mutableStateOf(Country().code)
     var cordinate = mutableStateOf(Cordinate(0.0, 0.0))
@@ -39,42 +40,28 @@ class MainViewModel @Inject constructor() : AppViewModel() {
     private val name
         get() = uiCityState.value.name
     var currentWeather = mutableStateOf(Current())
-    fun populateCountryDropDown(appContext: Context) {
-        viewModelScope.launch {
-            val deferedCountries: Deferred<List<Country>> =
-                async(Dispatchers.IO) {
-                    val jsonString =
-                        ReadLocalJsonFile.readJsonLocally(
-                            appContext, "countries.json"
-                        )
-                    ReadLocalJsonFile.mapJsonToCountry(jsonString)
-                }
-            try {
-                deferedCountries.await().map {
-                    val tempString = it.name + " " + it.code
-                    countries.value.add(tempString)
-                }
-                Log.i("MainViewModel", "${countries.value}")
-            } catch (e: Exception) {
+   init {
+       launchCatching {
+           val cityNameJob: Deferred<Flow<String>> = async {
+               dataStore.retrieveCityName()
+           }
+           val cityName = cityNameJob.await()
+           cityName.collect{
+                   uiCityState.value = uiCityState.value.copy(name = it)
 
-            }
-        }
-    }
+           }
 
-    fun updateCountryCode(country: String) {
-        try {
-            if (country.isNotEmpty()) {
-                val countryCodeArray = country.split(" ")
-                val arraySize = countryCodeArray.size
-                countryCode.value = countryCodeArray[arraySize - 1]
-            }
-        } catch (e: Exception) {
-
-        }
-    }
+       }
+   }
 
     fun updateCityName(newName: String) {
         uiCityState.value = City(name = newName)
+        launchCatching {
+            async {
+                dataStore.saveCityName(uiCityState.value.name)
+            }.await()
+        }
+
     }
 
     fun fetchLatitudeLongitude(
@@ -93,12 +80,11 @@ class MainViewModel @Inject constructor() : AppViewModel() {
                     jsonString.results[0].geometry.location.lng
                 )
                 when (jsonString.results[0].addressComponents[0].types[0]) {
-                    AddressType.LOCALITY.type -> {
-                        openWeatherData(BuildConfig.OPEN_WEATHER_KEY)
-                    }
-
                     AddressType.Country.type -> {
                         upDateWrongCity(true)
+                    }
+                    else ->{
+                        openWeatherData(BuildConfig.OPEN_WEATHER_KEY)
                     }
                 }
                 Log.i("LONGITUDE_SUCCESS", "$countryCode ${jsonString}")
@@ -157,7 +143,7 @@ class MainViewModel @Inject constructor() : AppViewModel() {
 
 }
 
-open class AppViewModel() : ViewModel() {
+open class AppViewModel : ViewModel() {
     fun launchCatching(snackbar: Boolean = true, block: suspend CoroutineScope.() -> Unit) =
         viewModelScope.launch(
             CoroutineExceptionHandler { _, throwable ->
@@ -172,5 +158,4 @@ open class AppViewModel() : ViewModel() {
 
 enum class AddressType(val type: String) {
     Country("country"),
-    LOCALITY("locality")
 }

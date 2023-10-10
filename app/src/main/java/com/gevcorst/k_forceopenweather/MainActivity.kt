@@ -30,8 +30,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val viewModel:MainViewModel = hiltViewModel()
-            viewModel.populateCountryDropDown(LocalContext.current)
             KForceOpenWeatherTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -46,18 +44,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    KForceOpenWeatherTheme {
-        Greeting("Android")
-    }
-}

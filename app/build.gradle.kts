@@ -79,6 +79,9 @@ dependencies {
     //coil async image loader
     implementation("io.coil-kt:coil-compose:2.4.0")
 
+    implementation("androidx.datastore:datastore-core:1.1.0-alpha05")
+    implementation("androidx.datastore:datastore-preferences:1.1.0-alpha05")
+
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
 
     //moshi
