@@ -94,34 +94,12 @@ class AppScreenState(
     coroutineScope: CoroutineScope
 ) {
     init {
-        coroutineScope.launch {
+        /*coroutineScope.launch {
             customSnackbar.snackbarMessages.filterNotNull().collect { snackbarMessage ->
                 val text = snackbarMessage.showMessage (resources)
                 snackbarHostState.showSnackbar("HELLO WELCOME !")
             }
-        }
-    }
-
-    fun popUp() {
-        navController.popBackStack()
-    }
-
-    fun navigate(route: String) {
-        navController.navigate(route) { launchSingleTop = true }
-    }
-
-    fun navigateAndPopUp(route: String, popUp: String) {
-        navController.navigate(route) {
-            launchSingleTop = true
-            popUpTo(popUp) { inclusive = true }
-        }
-    }
-
-    fun clearAndNavigate(route: String) {
-        navController.navigate(route) {
-            launchSingleTop = true
-            popUpTo(0) { inclusive = true }
-        }
+        }*/
     }
 }
 fun NavGraphBuilder.mainNavgraph(appState: AppScreenState) {
