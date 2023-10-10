@@ -140,7 +140,9 @@ class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppView
     private fun updateWeatherIconPath(icon: String) {
         weatherIconPath.value = "https://openweathermap.org/img/w/$icon.png"
     }
-
+   fun updateCordinate(lat:Double,lng:Double){
+       cordinate.value = cordinate.value.copy(lat = lat,lng=lng)
+   }
 }
 
 open class AppViewModel : ViewModel() {

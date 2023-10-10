@@ -9,5 +9,5 @@
     <string name="fahrenheit_symbol"> \u2109</string>
     <string name="celcius_symbol"> \u2103</string>
     <string name="dialog_title">Wrong US city </string>
-    <string name="dialog_message">City entered may not be a US city</string>
+    <string name="dialog_message"> the city entered may not be a US city</string>
 </resources>

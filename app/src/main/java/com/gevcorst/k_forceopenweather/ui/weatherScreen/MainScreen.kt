@@ -40,7 +40,7 @@ import com.gevcorst.k_forceopenweather.ui.theme.MilkyWhite
 import com.gevcorst.k_forceopenweather.R.string as AppText
 
 @Composable
-fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
+fun MainScreen(viewModel: MainViewModel) {
 
     val cityState = viewModel.uiCityState
     val countryCode = stringResource(id = AppText.countryCodeUS)
@@ -122,7 +122,8 @@ fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
                         viewModel.upDateWrongCity(false)
                     },
                     dialogTitle = stringResource(id = AppText.dialog_title),
-                    dialogText = stringResource(id = AppText.dialog_message),
+                    dialogText = viewModel.uiCityState.value.name+ " "+
+                            stringResource(id = AppText.dialog_message),
                     icon = Icons.Default.Warning
                 )
             }
