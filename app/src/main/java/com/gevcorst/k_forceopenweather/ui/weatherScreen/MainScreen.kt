@@ -114,6 +114,7 @@ fun MainScreen(viewModel: MainViewModel) {
             }
             if(viewModel.wrongCity.value){
                 val openAlertDialog = remember { mutableStateOf(false) }
+                viewModel.convertToFahrenheit(255.372)
                 CustomAlertDialog(
                     onDismissRequest = { openAlertDialog.value = false
                         viewModel.upDateWrongCity(false)},

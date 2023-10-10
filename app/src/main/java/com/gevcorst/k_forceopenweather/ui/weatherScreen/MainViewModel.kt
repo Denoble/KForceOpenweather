@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gevcorst.k_forceopenweather.BuildConfig
 import com.gevcorst.k_forceopenweather.Current
 import com.gevcorst.k_forceopenweather.OpenWeatherData
@@ -12,6 +13,7 @@ import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.model.country.Country
 import com.gevcorst.k_forceopenweather.model.location.Cordinate
 import com.gevcorst.k_forceopenweather.services.LocationApi
+import com.gevcorst.k_forceopenweather.services.ReverseLocationApi
 import com.gevcorst.k_forceopenweather.services.UserDataStore
 import com.gevcorst.k_forceopenweather.services.weatherApi
 import com.gevcorst.k_forceopenweather.ui.composables.resources
@@ -63,12 +65,32 @@ class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppView
         }
 
     }
+    fun fetchCityNameWithCordinate(lat: Double,lng: Double,
+                                   key: String = BuildConfig.GEOCODING_KEY){
+        val latlng = "$lat,$lng"
+        val coroutineScope = viewModelScope.launch {
+            try {
+                val deferedLocationServices = ReverseLocationApi.
+                reverseLocationRetrofitService.getReverseAddress(latlng,
+                    "",
+                    "",
+                    key)
+                val reverseAddress = deferedLocationServices.await()
+                val currentCityName = reverseAddress.results[0].addressComponents[2].shortName
+                updateCityName(currentCityName)
+                Log.i("REVERSEAdd",
+                    "${currentCityName}")
 
+            }catch (e:Exception){
+                Log.i("REVERSEAddERROR", "${e.stackTraceToString()}")
+            }
+        }
+    }
     fun fetchLatitudeLongitude(
         cityName: String, countryCode: String,
         key: String = BuildConfig.GEOCODING_KEY
     ) {
-        val scope = MainScope()
+        val scope = viewModelScope
         scope.launch {
             try {
                 val jsonString =
@@ -100,7 +122,7 @@ class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppView
         wrongCity.value = isWrong
     }
 
-    private fun convertToFahrenheit(temp: Double) {
+    fun convertToFahrenheit(temp: Double) {
         fahrenheitValue.value = (((temp - 273.0) * 1.8) + 32).toInt()
 
     }

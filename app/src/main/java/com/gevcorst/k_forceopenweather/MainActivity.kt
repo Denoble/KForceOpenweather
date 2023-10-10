@@ -86,9 +86,8 @@ class MainActivity : ComponentActivity(),LocationListener {
     override fun onLocationChanged(location: Location) {
         val lat = location.latitude
         val lng = location.longitude
-        viewModel.updateCordinate(lat,lng)
-        viewModel.fetchLatitudeLongitude(viewModel.uiCityState.value.name,
-           getString( AppText.countryCodeUS))
+        viewModel.updateCordinate(lat, lng)
+        viewModel.fetchCityNameWithCordinate(lat, lng)
     }
 
 }
