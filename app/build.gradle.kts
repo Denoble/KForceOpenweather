@@ -81,6 +81,8 @@ dependencies {
 
     implementation("androidx.datastore:datastore-core:1.1.0-alpha05")
     implementation("androidx.datastore:datastore-preferences:1.1.0-alpha05")
+    implementation("com.google.dagger:hilt-android-testing:2.48.1")
+    implementation ("org.slf4j:slf4j-nop:2.0.7")
 
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
 
@@ -98,11 +100,22 @@ dependencies {
     //navigation-compose
     implementation ("androidx.navigation:navigation-compose:2.7.4")
     implementation ("androidx.hilt:hilt-navigation-compose:1.1.0-beta01")
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
-    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+
+    // core
+    testImplementation( "junit:junit:4.13.2")
+
+// for coroutine handling
+    testImplementation ("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+
+// mockito for creating mocks and templates
+    //MockK
+    testImplementation ("io.mockk:mockk:1.13.4")
+    androidTestImplementation( "io.mockk:mockk-android:1.13.4")
+    testImplementation ("org.mockito:mockito-core:5.3.1")
+    testImplementation( "org.mockito.kotlin:mockito-kotlin:4.1.0")
+
+// turbine for testing the flows
+    testImplementation ("app.cash.turbine:turbine:1.0.0")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 }

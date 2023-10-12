@@ -31,18 +31,20 @@ import com.gevcorst.k_forceopenweather.R.string as AppText
 
 @HiltViewModel
 class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppViewModel() {
-    var countries = mutableStateOf(mutableListOf(""))
     val countryCode = mutableStateOf(Country().code)
     var cordinate = mutableStateOf(Cordinate(0.0, 0.0))
     var fahrenheitValue = mutableStateOf(0)
     var weatherIconPath = mutableStateOf("")
+    var weatherDescription = mutableStateOf("")
     var wrongCity = mutableStateOf(false)
     var uiCityState = mutableStateOf(City())
         private set
     private val name
         get() = uiCityState.value.name
     var currentWeather = mutableStateOf(Current())
+    var scope = viewModelScope
    init {
+
        launchCatching {
            val cityNameJob: Deferred<Flow<String>> = async {
                dataStore.retrieveCityName()
@@ -59,6 +61,8 @@ class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppView
     fun updateCityName(newName: String) {
         uiCityState.value = City(name = newName)
         launchCatching {
+            fetchLatitudeLongitude(uiCityState.value.name,
+                countryCode.value)
             async {
                 dataStore.saveCityName(uiCityState.value.name)
             }.await()
@@ -68,7 +72,7 @@ class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppView
     fun fetchCityNameWithCordinate(lat: Double,lng: Double,
                                    key: String = BuildConfig.GEOCODING_KEY){
         val latlng = "$lat,$lng"
-        val coroutineScope = viewModelScope.launch {
+        scope.launch {
             try {
                 val deferedLocationServices = ReverseLocationApi.
                 reverseLocationRetrofitService.getReverseAddress(latlng,
@@ -90,7 +94,6 @@ class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppView
         cityName: String, countryCode: String,
         key: String = BuildConfig.GEOCODING_KEY
     ) {
-        val scope = viewModelScope
         scope.launch {
             try {
                 val jsonString =
@@ -152,19 +155,26 @@ class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppView
             )
             convertToFahrenheit(currentWeather.value.temp)
             updateWeatherIconPath(currentWeather.value.weather[0].icon)
+            updateWeatherDescription(currentWeather.value.weather[0].description)
+            Log.d("CURRENT_WEATHER", "${weather}")
             Log.d("CURRENT_WEATHER_ICON", "${currentWeather.value.weather[0].icon}")
         } catch (e: Exception) {
             Log.d("WEATHER_ERROR", "${e.stackTraceToString()}")
         }
         return weather
     }
-
+private fun updateWeatherDescription(des:String){
+    weatherDescription.value = des
+}
     private fun updateWeatherIconPath(icon: String) {
         weatherIconPath.value = "https://openweathermap.org/img/w/$icon.png"
     }
    fun updateCordinate(lat:Double,lng:Double){
        cordinate.value = cordinate.value.copy(lat = lat,lng=lng)
    }
+    companion object {
+        final val DEFAULT_NUMBER = 255.372
+    }
 }
 
 open class AppViewModel : ViewModel() {

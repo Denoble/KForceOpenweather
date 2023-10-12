@@ -79,15 +79,18 @@ fun MainScreen(viewModel: MainViewModel) {
                         width = Dimension.value(100.dp)
                         height = Dimension.value(100.dp)
                     })
-            CustomText(text = viewModel.uiCityState.value.name +" "
-                    + viewModel.uiCityState.value.name,
+            CustomText(text =
+            " ${viewModel.uiCityState.value.name}\n${viewModel.weatherDescription.value}",
                  modifier =   Modifier.constrainAs(cityText){
                      top.linkTo(tempImage.bottom, margin = 16.dp)
                      start.linkTo(tempText.start)
                      end.linkTo(parent.end, margin = 16.dp)
                      width = Dimension.fillToConstraints
                      height = Dimension.wrapContent
-                 }, onClickAction = { /*TODO*/ })
+                 },
+                         textStyle = TextStyle(
+                         fontSize = 16.sp,fontWeight = FontWeight.Medium,
+                             fontFamily = FontFamily.Serif), onClickAction = { /*TODO*/ })
             CustomOutlinedTextField(
                 label = stringResource(id = AppText.enter_city),
                 value = cityState.value.name,
@@ -98,7 +101,7 @@ fun MainScreen(viewModel: MainViewModel) {
                 },
                modifier = Modifier.constrainAs(cityName){
                    start.linkTo(cityText.start)
-                   top.linkTo(cityText.top)
+                   top.linkTo(cityText.bottom, margin = 16.dp)
                    width = Dimension.wrapContent
                    height = Dimension.wrapContent
                })
@@ -114,7 +117,7 @@ fun MainScreen(viewModel: MainViewModel) {
             }
             if(viewModel.wrongCity.value){
                 val openAlertDialog = remember { mutableStateOf(false) }
-                viewModel.convertToFahrenheit(255.372)
+                viewModel.convertToFahrenheit(MainViewModel.DEFAULT_NUMBER)
                 CustomAlertDialog(
                     onDismissRequest = { openAlertDialog.value = false
                         viewModel.upDateWrongCity(false)},
