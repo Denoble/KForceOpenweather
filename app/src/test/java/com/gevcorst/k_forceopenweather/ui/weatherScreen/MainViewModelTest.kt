@@ -34,11 +34,12 @@ import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 import com.gevcorst.k_forceopenweather.R.string as Apptext
 
-@Suppress("UNCHECKED_CAST")
+
 @HiltAndroidTest
 @RunWith(JUnit4::class)
 class MainViewModelTest {
     private val fakeAddressResult = ExampleUnitTest().fakeResult
+    private lateinit var viewModel: MainViewModel
 
     private val Context.dataStore by preferencesDataStore(
         name = USER_PREFERENCES_NAME
@@ -46,7 +47,7 @@ class MainViewModelTest {
     @Mock
     private lateinit var mockContext: Context
 
-    private lateinit var viewModel: MainViewModel
+
 
     //@BindValue
     //@JvmField
