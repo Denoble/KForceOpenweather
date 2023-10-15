@@ -80,7 +80,7 @@ fun MainScreen(viewModel: MainViewModel) {
                         height = Dimension.value(100.dp)
                     })
             CustomText(text =
-            " ${viewModel.uiCityState.value.name}\n${viewModel.weatherDescription.value}",
+            " ${viewModel.uiCityState.value.name}\n${viewModel.weatherSummary.value}",
                  modifier =   Modifier.constrainAs(cityText){
                      top.linkTo(tempImage.bottom, margin = 16.dp)
                      start.linkTo(tempText.start)

@@ -4,13 +4,22 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Observer
 import com.gevcorst.k_forceopenweather.FakeLocationRepository
+import com.gevcorst.k_forceopenweather.FakeWeather
+import com.gevcorst.k_forceopenweather.FakeWeatherData
+import com.gevcorst.k_forceopenweather.MainCoroutineRule
 import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.TestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -23,43 +32,46 @@ class MainViewModelTest {
     private val fakeAddressResult = FakeLocationRepository().fakeResult
     private lateinit var viewModel: MainViewModel
     private lateinit var dataStore: UserDataStore
-    private val city = mutableStateOf(City(""))
+    private  lateinit var fakeLocation:FakeLocationRepository
+    private lateinit var fakeWeather: FakeWeatherData
+
+    @ExperimentalCoroutinesApi
     @get:Rule
-    val instantExecutorRule = InstantTaskExecutorRule()
+    var mainCoroutineRule = MainCoroutineRule()
 
-    // Create a TestCoroutineDispatcher for testing coroutines
-    private val testDispatcher = TestCoroutineDispatcher()
+    // Executes each task synchronously using Architecture Components.
+    @get:Rule
+    var instantExecutorRule = InstantTaskExecutorRule()
 
-    // Create a TestCoroutineScope
-    private val testScope = TestCoroutineScope(testDispatcher)
-
-    @Mock
-    lateinit var observer: Observer<City>
 
 
     @Before
     fun setup() {
-        MockitoAnnotations.initMocks(this)
-        dataStore = mockk<UserDataStore>()
-        viewModel = MainViewModel(dataStore = dataStore)
+
+        dataStore = mockk()
+        fakeLocation = FakeLocationRepository()
+        fakeWeather = FakeWeatherData()
+        /*viewModel = MainViewModel(dataStore = dataStore,
+            fakeLocation,
+            fakeWeather)*/
 
     }
 
     @Test
-    fun fetchData_updatesMutableState() = testScope.runBlockingTest {
+    fun  when_fetchLatitudeLongitude_method_is_called_Location_Data_are_fetched() = runTest {
         // Given
-        val expectedValue = "Manhattan"
-        val fakeCity = fakeAddressResult.addressComponents[0].longName
+        fakeLocation
+        // when
+        val temp = async(UnconfinedTestDispatcher(testScheduler)) {
+              fakeLocation.fetchLatitudeLongitude(FakeLocationRepository.CITY,
+                  FakeLocationRepository.countryCode,
+                  FakeLocationRepository.key)
+          }.await()
+        temp.collect{
+            //then
+            assert(it.results.isEmpty().not())
+        }
 
-        // When
-        viewModel.updateCityName(fakeCity)
-
-        // Then
-        // Ensure that the MutableState was updated to the expected value
-       // assert(viewModel.myState.value == expectedValue)
-
-        // Verify that the Observer was notified with the expected value
-        //(observer).onChanged(expectedValue)
     }
 }
 

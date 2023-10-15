@@ -10,7 +10,9 @@ import com.gevcorst.k_forceopenweather.BuildConfig
 import com.gevcorst.k_forceopenweather.Current
 import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.model.location.Cordinate
+import com.gevcorst.k_forceopenweather.repository.LocationRepository
 import com.gevcorst.k_forceopenweather.repository.LocationRepositoryImpl
+import com.gevcorst.k_forceopenweather.repository.WeatherRepository
 import com.gevcorst.k_forceopenweather.repository.WeatherRepositoryImpl
 import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,20 +21,23 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     val dataStore: UserDataStore,
-    private val locationRepository: LocationRepositoryImpl,
-    private val openWeatherRepositoryImpl: WeatherRepositoryImpl
+    private val locationRepository: LocationRepository,
+    private val openWeatherRepositoryImpl: WeatherRepository
 ) : AppViewModel() {
     private val countryCode = mutableStateOf("")
+    private val someFlow = MutableStateFlow("")
     private var cordinate = mutableStateOf(Cordinate(0.0, 0.0))
     var fahrenheitValue = mutableIntStateOf(0)
     var weatherIconPath = mutableStateOf("")
     var weatherDescription = mutableStateOf("")
+    var weatherSummary = mutableStateOf("")
     var wrongCity = mutableStateOf(false)
     var uiCityState: MutableState<City> = mutableStateOf(City())
         private set
@@ -144,7 +149,7 @@ class MainViewModel @Inject constructor(
 
     private suspend fun refreshWeatherData(
         key: String, openWeatherRepositoryImpl:
-        WeatherRepositoryImpl
+        WeatherRepository
     ) {
 
         try {
@@ -175,7 +180,8 @@ class MainViewModel @Inject constructor(
                     convertToFahrenheit(currentWeather.value.temp)
                     updateWeatherIconPath(currentWeather.value.weather[0].icon)
                     updateWeatherDescription(currentWeather.value.weather[0].description)
-                    Log.d("CURRENT_WEATHER", "${weatherData}")
+                    updateWeatherSummary(weatherData.daily[0].summary)
+                    Log.d("CURRENT_WEATHER", "${weatherData.daily[0].summary}")
                     Log.d("CURRENT_WEATHER_ICON", "${currentWeather.value.weather[0].icon}")
 
                 }
@@ -189,6 +195,9 @@ class MainViewModel @Inject constructor(
 
     private fun updateWeatherDescription(des: String) {
         weatherDescription.value = des
+    }
+    private fun updateWeatherSummary(summary:String){
+        weatherSummary.value = summary
     }
 
     private fun updateWeatherIconPath(icon: String) {
