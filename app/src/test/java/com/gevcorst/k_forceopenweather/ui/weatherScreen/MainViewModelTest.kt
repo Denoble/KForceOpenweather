@@ -1,31 +1,18 @@
 package com.gevcorst.k_forceopenweather.ui.weatherScreen
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.Observer
 import com.gevcorst.k_forceopenweather.FakeLocationRepository
-import com.gevcorst.k_forceopenweather.FakeWeather
 import com.gevcorst.k_forceopenweather.FakeWeatherData
 import com.gevcorst.k_forceopenweather.MainCoroutineRule
-import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mock
-
-import org.mockito.MockitoAnnotations
 
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
@@ -51,10 +38,6 @@ class MainViewModelTest {
         dataStore = mockk()
         fakeLocation = FakeLocationRepository()
         fakeWeather = FakeWeatherData()
-        /*viewModel = MainViewModel(dataStore = dataStore,
-            fakeLocation,
-            fakeWeather)*/
-
     }
 
     @Test
@@ -62,16 +45,47 @@ class MainViewModelTest {
         // Given
         fakeLocation
         // when
-        val temp = async(UnconfinedTestDispatcher(testScheduler)) {
+        val locationFlow = async(UnconfinedTestDispatcher(testScheduler)) {
               fakeLocation.fetchLatitudeLongitude(FakeLocationRepository.CITY,
-                  FakeLocationRepository.countryCode,
-                  FakeLocationRepository.key)
+                  FakeLocationRepository.COUNTRY_CODE,
+                  FakeLocationRepository.KEY)
           }.await()
-        temp.collect{
+        locationFlow.collect{
+            //then
+            assert(it.results.isEmpty().not())
+            assert(it.results[0].addressComponents[0].longName == "Manhattan")
+        }
+
+    }
+    @Test
+    fun when_FetchCityNameWithCordinate_Method_Is_Called_Location_Data_Is_Not_empty() = runTest {
+        // Given
+        fakeLocation
+        // when
+        val locationFlow = async(UnconfinedTestDispatcher(testScheduler)) {
+            fakeLocation.fetchCityNameWithCordinate (FakeLocationRepository.LAT,
+                FakeLocationRepository.LNG,
+                FakeLocationRepository.KEY)
+        }.await()
+        locationFlow.collect{
             //then
             assert(it.results.isEmpty().not())
         }
+    }
+    @Test
+    fun when_GetCurrentWeather_Method_Called_Weather_Data_Not_Empty() = runTest {
+        //Given
+        fakeWeather
 
+        //when
+        val weatherDataFlow = async(UnconfinedTestDispatcher(testScheduler)) {
+          fakeWeather.getCurrentWeather(FakeWeatherData.LAT,
+              FakeWeatherData.LNG,
+              FakeWeatherData.KEY)
+        }.await()
+        weatherDataFlow.collect{
+            assert(it.current.weather.isEmpty().not())
+        }
     }
 }
 

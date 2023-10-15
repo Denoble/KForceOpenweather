@@ -58,8 +58,8 @@ class FakeWeatherData : WeatherRepository {
         emit(FakeWeather().openWeatherData)
     }
   companion object{
-      val LAT = 37.3861
-      val LNG = -122.0839
-      val KEY = BuildConfig.OPEN_WEATHER_KEY
+      const val LAT = 37.3861
+      const val LNG = -122.0839
+      const val KEY = BuildConfig.OPEN_WEATHER_KEY
   }
 }

@@ -13,7 +13,6 @@ import com.gevcorst.k_forceopenweather.model.location.Result
 import com.gevcorst.k_forceopenweather.model.location.Southwest
 import com.gevcorst.k_forceopenweather.model.location.Viewport
 import com.gevcorst.k_forceopenweather.repository.LocationRepository
-import com.gevcorst.k_forceopenweather.repository.WeatherRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -90,11 +89,11 @@ class FakeLocationRepository : LocationRepository {
     }
 
     companion object {
-        val lat = 40.783063
-        val lng = 73.9712488
-        val key = BuildConfig.GEOCODING_KEY
-        val countryCode = "country:US"
-        val CITY = "Manhattan"
+        const val LAT = 40.783063
+        const val LNG = 73.9712488
+        const val KEY = BuildConfig.GEOCODING_KEY
+        const val COUNTRY_CODE = "country:US"
+        const val CITY = "Manhattan"
     }
 }
 
