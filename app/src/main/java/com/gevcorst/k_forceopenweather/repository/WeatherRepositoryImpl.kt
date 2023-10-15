@@ -5,8 +5,9 @@ import com.gevcorst.k_forceopenweather.repository.services.OpenWeatherAPIService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class WeatherRepository(private val openWeatherAPIService: OpenWeatherAPIService){
-    suspend fun getCurrentWeather(
+class WeatherRepositoryImpl(private val openWeatherAPIService: OpenWeatherAPIService)
+    :WeatherRepository{
+    override suspend fun getCurrentWeather(
         lat:Double,
         ln:Double,key:String
     ): Flow<OpenWeatherData> = flow{
@@ -15,4 +16,12 @@ class WeatherRepository(private val openWeatherAPIService: OpenWeatherAPIService
         val weatherData = deferedWeatherData.await()
         emit(weatherData)
     }
+}
+
+interface WeatherRepository{
+    suspend fun getCurrentWeather(
+        lat:Double,
+        ln:Double,key:String
+    ): Flow<OpenWeatherData>
+
 }

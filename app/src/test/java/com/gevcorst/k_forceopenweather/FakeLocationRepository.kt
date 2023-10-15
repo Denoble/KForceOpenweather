@@ -1,21 +1,21 @@
 package com.gevcorst.k_forceopenweather
 
-import androidx.annotation.VisibleForTesting
-import androidx.compose.runtime.MutableState
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.gevcorst.k_forceopenweather.model.location.AddressComponent
 import com.gevcorst.k_forceopenweather.model.location.Bounds
 import com.gevcorst.k_forceopenweather.model.location.Cordinate
 import com.gevcorst.k_forceopenweather.model.location.Geometry
+import com.gevcorst.k_forceopenweather.model.location.Location
+import com.gevcorst.k_forceopenweather.model.location.LocationAddress
 import com.gevcorst.k_forceopenweather.model.location.Northeast
 import com.gevcorst.k_forceopenweather.model.location.Result
 import com.gevcorst.k_forceopenweather.model.location.Southwest
 import com.gevcorst.k_forceopenweather.model.location.Viewport
+import com.gevcorst.k_forceopenweather.repository.LocationRepository
+import com.gevcorst.k_forceopenweather.repository.LocationRepositoryImpl
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
@@ -25,9 +25,6 @@ import org.junit.Test
 import org.junit.Assert.*
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 import kotlin.coroutines.ContinuationInterceptor
 
 /**
@@ -35,7 +32,7 @@ import kotlin.coroutines.ContinuationInterceptor
  *
  * See [testing documentation](http://d.android.com/tools/testing).
  */
-class ExampleUnitTest {
+class FakeLocationRepository(): LocationRepository {
 
     val fakeAddressComponent= AddressComponent(
      longName="Manhattan", shortName="Manhattan",
@@ -62,6 +59,22 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+    override suspend fun fetchLatitudeLongitude(
+        cityName: String,
+        countryCode: String,
+        key: String
+    ): Flow<Location> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun fetchCityNameWithCordinate(
+        lat: Double,
+        lng: Double,
+        key: String
+    ): Flow<LocationAddress> {
+        TODO("Not yet implemented")
     }
 }
 

@@ -9,10 +9,11 @@ import com.gevcorst.k_forceopenweather.repository.services.ReverseLocationAPISer
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
-class LocationRepository @Inject constructor (private val locationAPIService:
+class LocationRepositoryImpl @Inject constructor (private val locationAPIService:
                                               LocationAPIService,
-  private val reverseLocationAPIService: ReverseLocationAPIService){
-    suspend fun fetchLatitudeLongitude(
+                                                  private val reverseLocationAPIService:
+                                                  ReverseLocationAPIService):LocationRepository{
+    override suspend fun fetchLatitudeLongitude(
         cityName:String,
         countryCode:String, key:String
     ): Flow<Location> = flow{
@@ -21,9 +22,9 @@ class LocationRepository @Inject constructor (private val locationAPIService:
         val location = deferedLocation.await()
         emit(location)
     }
-    suspend fun fetchCityNameWithCordinate(
+    override suspend fun fetchCityNameWithCordinate(
         lat: Double, lng: Double,
-        key: String = BuildConfig.GEOCODING_KEY
+        key: String
     ):Flow<LocationAddress> = flow {
         val latlng = "$lat,$lng"
         val deferedLocation = reverseLocationAPIService.getReverseAddress(latlng,
@@ -32,4 +33,14 @@ class LocationRepository @Inject constructor (private val locationAPIService:
         val locationAddress = deferedLocation.await()
         emit(locationAddress)
     }
+}
+interface LocationRepository{
+  suspend  fun  fetchLatitudeLongitude(
+        cityName:String,
+        countryCode:String, key:String
+    ): Flow<Location>
+    suspend fun fetchCityNameWithCordinate(
+        lat: Double, lng: Double,
+        key: String = BuildConfig.GEOCODING_KEY
+    ):Flow<LocationAddress>
 }

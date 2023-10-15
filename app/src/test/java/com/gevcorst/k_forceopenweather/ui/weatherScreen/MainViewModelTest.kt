@@ -1,10 +1,9 @@
 package com.gevcorst.k_forceopenweather.ui.weatherScreen
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.Observer
-import com.gevcorst.k_forceopenweather.ExampleUnitTest
+import com.gevcorst.k_forceopenweather.FakeLocationRepository
 import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
 import io.mockk.mockk
@@ -16,14 +15,12 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.mockito.Mock
-import org.mockito.Mockito.*
 
 import org.mockito.MockitoAnnotations
-import com.gevcorst.k_forceopenweather.R.string as Apptext
 
 @ExperimentalCoroutinesApi
 class MainViewModelTest {
-    private val fakeAddressResult = ExampleUnitTest().fakeResult
+    private val fakeAddressResult = FakeLocationRepository().fakeResult
     private lateinit var viewModel: MainViewModel
     private lateinit var dataStore: UserDataStore
     private val city = mutableStateOf(City(""))

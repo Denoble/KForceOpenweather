@@ -2,17 +2,16 @@ package com.gevcorst.k_forceopenweather.ui.weatherScreen
 
 import android.util.Log
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gevcorst.k_forceopenweather.BuildConfig
 import com.gevcorst.k_forceopenweather.Current
-import com.gevcorst.k_forceopenweather.OpenWeatherData
 import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.model.location.Cordinate
-import com.gevcorst.k_forceopenweather.repository.LocationRepository
-import com.gevcorst.k_forceopenweather.repository.WeatherRepository
-import com.gevcorst.k_forceopenweather.repository.services.ReverseLocationApi
+import com.gevcorst.k_forceopenweather.repository.LocationRepositoryImpl
+import com.gevcorst.k_forceopenweather.repository.WeatherRepositoryImpl
 import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -26,12 +25,12 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     val dataStore: UserDataStore,
-    val locationRepository: LocationRepository,
-    val openWeatherRepository: WeatherRepository
+    private val locationRepository: LocationRepositoryImpl,
+    private val openWeatherRepositoryImpl: WeatherRepositoryImpl
 ) : AppViewModel() {
-    val countryCode = mutableStateOf("")
-    var cordinate = mutableStateOf(Cordinate(0.0, 0.0))
-    var fahrenheitValue = mutableStateOf(0)
+    private val countryCode = mutableStateOf("")
+    private var cordinate = mutableStateOf(Cordinate(0.0, 0.0))
+    var fahrenheitValue = mutableIntStateOf(0)
     var weatherIconPath = mutableStateOf("")
     var weatherDescription = mutableStateOf("")
     var wrongCity = mutableStateOf(false)
@@ -39,7 +38,7 @@ class MainViewModel @Inject constructor(
         private set
     private val name
         get() = uiCityState.value.name
-    var currentWeather = mutableStateOf(Current())
+    private var currentWeather = mutableStateOf(Current())
     var scope = viewModelScope
 
     init {
@@ -86,7 +85,7 @@ class MainViewModel @Inject constructor(
                     updateCityName(currentCityName)
                     Log.i(
                         "REVERSEAdd",
-                        "${currentCityName}"
+                        "${reverseAddress}"
                     )
                 }
 
@@ -120,7 +119,7 @@ class MainViewModel @Inject constructor(
                         else -> {
                             refreshWeatherData(
                                 BuildConfig.OPEN_WEATHER_KEY,
-                                openWeatherRepository
+                                openWeatherRepositoryImpl
                             )
                         }
                     }
@@ -144,14 +143,14 @@ class MainViewModel @Inject constructor(
     }
 
     private suspend fun refreshWeatherData(
-        key: String, openWeatherRepository:
-        WeatherRepository
+        key: String, openWeatherRepositoryImpl:
+        WeatherRepositoryImpl
     ) {
 
         try {
             viewModelScope.launch {
                 val deferedOpenWeatherData = async {
-                    openWeatherRepository.getCurrentWeather(
+                    openWeatherRepositoryImpl.getCurrentWeather(
                         cordinate.value.lat, cordinate.value.lng, key
                     )
                 }.await()

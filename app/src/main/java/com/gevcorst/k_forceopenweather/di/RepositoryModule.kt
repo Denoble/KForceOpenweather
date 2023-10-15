@@ -1,7 +1,7 @@
 package com.gevcorst.k_forceopenweather.di
 
-import com.gevcorst.k_forceopenweather.repository.LocationRepository
-import com.gevcorst.k_forceopenweather.repository.WeatherRepository
+import com.gevcorst.k_forceopenweather.repository.LocationRepositoryImpl
+import com.gevcorst.k_forceopenweather.repository.WeatherRepositoryImpl
 import com.gevcorst.k_forceopenweather.repository.services.LocationAPIService
 import com.gevcorst.k_forceopenweather.repository.services.OpenWeatherAPIService
 import com.gevcorst.k_forceopenweather.repository.services.ReverseLocationAPIService
@@ -19,15 +19,15 @@ object RepositoryModule {
     fun provideLocationRepository (
         locationAPIService: LocationAPIService,
         reversedLocationAPIService: ReverseLocationAPIService
-    ): LocationRepository {
-        return LocationRepository(locationAPIService,
+    ): LocationRepositoryImpl {
+        return LocationRepositoryImpl(locationAPIService,
             reversedLocationAPIService)
     }
     @Singleton
     @Provides
     fun provideWeatherRepository(
         weatherAPIService: OpenWeatherAPIService
-    ): WeatherRepository {
-        return WeatherRepository(weatherAPIService)
+    ): WeatherRepositoryImpl {
+        return WeatherRepositoryImpl(weatherAPIService)
     }
 }
