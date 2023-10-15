@@ -1,4 +1,4 @@
-package com.gevcorst.k_forceopenweather.services
+package com.gevcorst.k_forceopenweather.repository.services
 
 import com.gevcorst.k_forceopenweather.model.location.Location
 import com.gevcorst.k_forceopenweather.model.location.LocationAddress
@@ -45,7 +45,7 @@ object LocationApi {
             by lazy { retrofit.create(LocationAPIService::class.java) }
 }
 object  ReverseLocationApi{
-    val reverseLocationRetrofitService:ReverseLocationAPIService
+    val reverseLocationRetrofitService: ReverseLocationAPIService
     by lazy {
         retrofit.create(ReverseLocationAPIService::class.java)
     }

@@ -60,10 +60,10 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.activity:activity-compose:1.8.0")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.10.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -82,7 +82,9 @@ dependencies {
     implementation("androidx.datastore:datastore-core:1.1.0-alpha05")
     implementation("androidx.datastore:datastore-preferences:1.1.0-alpha05")
     implementation("com.google.dagger:hilt-android-testing:2.48.1")
-    implementation ("org.slf4j:slf4j-nop:2.0.7")
+    implementation ("org.slf4j:slf4j-nop:2.0.9")
+    implementation("androidx.compose.ui:ui-test-junit4:1.6.0-alpha07")
+    implementation("androidx.arch.core:core-testing:2.2.0")
 
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
 
@@ -100,7 +102,8 @@ dependencies {
     //navigation-compose
     implementation ("androidx.navigation:navigation-compose:2.7.4")
     implementation ("androidx.hilt:hilt-navigation-compose:1.1.0-beta01")
-
+    testImplementation ("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation ("androidx.arch.core:core-testing:2.2.0")
     // core
     testImplementation( "junit:junit:4.13.2")
 
@@ -109,10 +112,10 @@ dependencies {
 
 // mockito for creating mocks and templates
     //MockK
-    testImplementation ("io.mockk:mockk:1.13.4")
-    androidTestImplementation( "io.mockk:mockk-android:1.13.4")
-    testImplementation ("org.mockito:mockito-core:5.3.1")
-    testImplementation( "org.mockito.kotlin:mockito-kotlin:4.1.0")
+    testImplementation ("io.mockk:mockk:1.13.8")
+    androidTestImplementation("io.mockk:mockk-android:1.13.8")
+    testImplementation ("org.mockito:mockito-core:5.6.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 
 // turbine for testing the flows
     testImplementation ("app.cash.turbine:turbine:1.0.0")

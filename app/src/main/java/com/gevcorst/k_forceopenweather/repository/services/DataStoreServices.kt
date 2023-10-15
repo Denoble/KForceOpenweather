@@ -1,4 +1,4 @@
-package com.gevcorst.k_forceopenweather.services
+package com.gevcorst.k_forceopenweather.repository.services
 
 
 import androidx.datastore.core.DataStore

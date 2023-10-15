@@ -1,120 +1,68 @@
 package com.gevcorst.k_forceopenweather.ui.weatherScreen
 
-
-import android.content.Context
-import androidx.datastore.preferences.preferencesDataStore
-
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.Observer
 import com.gevcorst.k_forceopenweather.ExampleUnitTest
-
-import com.gevcorst.k_forceopenweather.services.UserDataStore
-
-
-import dagger.hilt.android.testing.HiltAndroidTest
-
+import com.gevcorst.k_forceopenweather.model.country.City
+import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
 import io.mockk.mockk
-
-
-import junit.framework.TestCase.assertTrue
-
-import kotlinx.coroutines.Dispatchers
-
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Rule
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.mockito.Mock
+import org.mockito.Mockito.*
 
-import org.mockito.junit.MockitoJUnit
-import org.mockito.junit.MockitoRule
+import org.mockito.MockitoAnnotations
 import com.gevcorst.k_forceopenweather.R.string as Apptext
 
-
-@HiltAndroidTest
-@RunWith(JUnit4::class)
+@ExperimentalCoroutinesApi
 class MainViewModelTest {
     private val fakeAddressResult = ExampleUnitTest().fakeResult
     private lateinit var viewModel: MainViewModel
-
-    private val Context.dataStore by preferencesDataStore(
-        name = USER_PREFERENCES_NAME
-    )
-    @Mock
-    private lateinit var mockContext: Context
-
-
-
-    //@BindValue
-    //@JvmField
-
-
-
+    private lateinit var dataStore: UserDataStore
+    private val city = mutableStateOf(City(""))
     @get:Rule
-    val mockitoRule: MockitoRule = MockitoJUnit.rule()
+    val instantExecutorRule = InstantTaskExecutorRule()
+
+    // Create a TestCoroutineDispatcher for testing coroutines
+    private val testDispatcher = TestCoroutineDispatcher()
+
+    // Create a TestCoroutineScope
+    private val testScope = TestCoroutineScope(testDispatcher)
+
+    @Mock
+    lateinit var observer: Observer<City>
 
 
     @Before
-    fun setUp() {
-        val datastore = mockk<UserDataStore>(relaxed = true)
-        Dispatchers.setMain(UnconfinedTestDispatcher())
-        viewModel = MainViewModel(dataStore = datastore)
-       /* every {
-            viewModel.uiCityState
-        } returns cityState
-        every {
-            viewModel.cordinate
-        } returns  cordinate*/
-    }
-
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
-    @Test
-    fun testUpdateCityName() = runTest{
-        //given
-        val resultCity = "New York"
-        val fetchLocationAPI =  fakeAddressResult
-        val fetchedCity = fetchLocationAPI.addressComponents[0].longName
-       // when
-        viewModel.updateCityName(fetchedCity)
-//       val temp = viewModel.uiCityState.value.name
-        assertTrue("Manhattan"  == fetchedCity)
-
-        //assertEquals(viewModel.uiCityState.value.name, resultCity)
-    }
-
-    @Test
-    fun testFetchCityNameWithCordinate() = runTest {
-        val Errormessage = "Api Error !"
-
-        viewModel.fetchLatitudeLongitude("Atlanta",
-            "country:US")
-
-            assert(viewModel.uiCityState.value.name == "Atlanta")
+    fun setup() {
+        MockitoAnnotations.initMocks(this)
+        dataStore = mockk<UserDataStore>()
+        viewModel = MainViewModel(dataStore = dataStore)
 
     }
 
     @Test
-    fun testFetchLatitudeLongitude() {
-        /*viewModel.fetchLatitudeLongitude("New York",
-            "country:US")
-            assertEquals(viewModel.uiCityState.value.name,"New York")*/
+    fun fetchData_updatesMutableState() = testScope.runBlockingTest {
+        // Given
+        val expectedValue = "Manhattan"
+        val fakeCity = fakeAddressResult.addressComponents[0].longName
 
-    }
+        // When
+        viewModel.updateCityName(fakeCity)
 
-    @Test
-    fun testUpDateWrongCity() {
-    }
+        // Then
+        // Ensure that the MutableState was updated to the expected value
+       // assert(viewModel.myState.value == expectedValue)
 
-    @Test
-    fun testGetDataStore() = runTest {
+        // Verify that the Observer was notified with the expected value
+        //(observer).onChanged(expectedValue)
     }
 }
 

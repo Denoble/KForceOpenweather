@@ -1,118 +1,131 @@
 package com.gevcorst.k_forceopenweather.ui.weatherScreen
 
-import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.gevcorst.k_forceopenweather.BuildConfig
 import com.gevcorst.k_forceopenweather.Current
 import com.gevcorst.k_forceopenweather.OpenWeatherData
 import com.gevcorst.k_forceopenweather.model.country.City
-import com.gevcorst.k_forceopenweather.model.country.Country
 import com.gevcorst.k_forceopenweather.model.location.Cordinate
-import com.gevcorst.k_forceopenweather.services.LocationApi
-import com.gevcorst.k_forceopenweather.services.ReverseLocationApi
-import com.gevcorst.k_forceopenweather.services.UserDataStore
-import com.gevcorst.k_forceopenweather.services.weatherApi
-import com.gevcorst.k_forceopenweather.ui.composables.resources
-import com.gevcorst.k_forceopenweather.util.weatherScreen.ReadLocalJsonFile
+import com.gevcorst.k_forceopenweather.repository.LocationRepository
+import com.gevcorst.k_forceopenweather.repository.WeatherRepository
+import com.gevcorst.k_forceopenweather.repository.services.ReverseLocationApi
+import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.gevcorst.k_forceopenweather.R.string as AppText
 
 @HiltViewModel
-class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppViewModel() {
-    val countryCode = mutableStateOf(Country().code)
+class MainViewModel @Inject constructor(
+    val dataStore: UserDataStore,
+    val locationRepository: LocationRepository,
+    val openWeatherRepository: WeatherRepository
+) : AppViewModel() {
+    val countryCode = mutableStateOf("")
     var cordinate = mutableStateOf(Cordinate(0.0, 0.0))
     var fahrenheitValue = mutableStateOf(0)
     var weatherIconPath = mutableStateOf("")
     var weatherDescription = mutableStateOf("")
     var wrongCity = mutableStateOf(false)
-    var uiCityState = mutableStateOf(City())
+    var uiCityState: MutableState<City> = mutableStateOf(City())
         private set
     private val name
         get() = uiCityState.value.name
     var currentWeather = mutableStateOf(Current())
     var scope = viewModelScope
-   init {
 
-       launchCatching {
-           val cityNameJob: Deferred<Flow<String>> = async {
-               dataStore.retrieveCityName()
-           }
-           val cityName = cityNameJob.await()
-           cityName.collect{
-                   uiCityState.value = uiCityState.value.copy(name = it)
+    init {
 
-           }
+        launchCatching {
+            val cityNameJob: Deferred<Flow<String>> = async {
+                dataStore.retrieveCityName()
+            }
+            val cityName = cityNameJob.await()
+            cityName.collect {
+                uiCityState.value = uiCityState.value.copy(name = it)
 
-       }
-   }
+            }
+
+        }
+    }
 
     fun updateCityName(newName: String) {
         uiCityState.value = City(name = newName)
         launchCatching {
-            fetchLatitudeLongitude(uiCityState.value.name,
-                countryCode.value)
-            async {
-                dataStore.saveCityName(uiCityState.value.name)
-            }.await()
+            fetchLatitudeLongitude(
+                newName,
+                countryCode.value
+            )
+            dataStore.saveCityName(uiCityState.value.name)
         }
 
     }
-    fun fetchCityNameWithCordinate(lat: Double,lng: Double,
-                                   key: String = BuildConfig.GEOCODING_KEY){
+
+    fun fetchCityNameWithCordinate(
+        lat: Double, lng: Double,
+        key: String = BuildConfig.GEOCODING_KEY
+    ) {
         val latlng = "$lat,$lng"
         scope.launch {
             try {
-                val deferedLocationServices = ReverseLocationApi.
-                reverseLocationRetrofitService.getReverseAddress(latlng,
-                    "",
-                    "",
-                    key)
-                val reverseAddress = deferedLocationServices.await()
-                val currentCityName = reverseAddress.results[0].addressComponents[2].shortName
-                updateCityName(currentCityName)
-                Log.i("REVERSEAdd",
-                    "${currentCityName}")
+                val deferedLocationServices = async {
+                    locationRepository.fetchCityNameWithCordinate(
+                        lat,lng,key
+                    )
+                }.await()
+                deferedLocationServices.collect{reverseAddress->
+                    val currentCityName = reverseAddress.results[0].addressComponents[2].shortName
+                    updateCityName(currentCityName)
+                    Log.i(
+                        "REVERSEAdd",
+                        "${currentCityName}"
+                    )
+                }
 
-            }catch (e:Exception){
+            } catch (e: Exception) {
                 Log.i("REVERSEAddERROR", "${e.stackTraceToString()}")
             }
         }
     }
+
     fun fetchLatitudeLongitude(
         cityName: String, countryCode: String,
         key: String = BuildConfig.GEOCODING_KEY
     ) {
         scope.launch {
             try {
-                val jsonString =
-                    LocationApi.locationRetrofitServices.getaddress(
+                val jsonString = async {
+                    locationRepository.fetchLatitudeLongitude(
                         cityName, countryCode, key
-                    ).await()
-                cordinate.value = cordinate.value.copy(
-                    jsonString.results[0].geometry.location.lat,
-                    jsonString.results[0].geometry.location.lng
-                )
-                when (jsonString.results[0].addressComponents[0].types[0]) {
-                    AddressType.Country.type -> {
-                        upDateWrongCity(true)
-                    }
-                    else ->{
-                        openWeatherData(BuildConfig.OPEN_WEATHER_KEY)
-                    }
+                    )
                 }
-                Log.i("LONGITUDE_SUCCESS", "$countryCode ${jsonString}")
+                jsonString.await().collect { location ->
+                    cordinate.value = cordinate.value.copy(
+                        location.results[0].geometry.location.lat,
+                        location.results[0].geometry.location.lng
+                    )
+                    when (location.results[0].addressComponents[0].types[0]) {
+                        AddressType.Country.type -> {
+                            upDateWrongCity(true)
+                        }
+
+                        else -> {
+                            refreshWeatherData(
+                                BuildConfig.OPEN_WEATHER_KEY,
+                                openWeatherRepository
+                            )
+                        }
+                    }
+                    Log.i("LONGITUDE_SUCCESS", "$countryCode $location")
+                }
 
             } catch (e: Exception) {
                 Log.d("APIERROR_WEATHER", "${e.printStackTrace()} ${e.localizedMessage ?: " "}")
@@ -130,48 +143,63 @@ class MainViewModel @Inject constructor( val dataStore: UserDataStore) : AppView
 
     }
 
-    private suspend fun openWeatherData(key: String): OpenWeatherData {
-        val weather = weatherApi.weatherRetrofitServices.getCurrentWeather(
-            cordinate.value.lat, cordinate.value.lng, key
-        ).await()
-        try {
-            currentWeather.value = currentWeather.value.copy(
-                clouds = weather.current.clouds,
-                dewPoint = weather.current.dewPoint,
-                dt = weather.current.dt,
-                feelsLike = weather.current.feelsLike,
-                humidity = weather.current.humidity,
-                pressure = weather.current.pressure,
-                sunrise = weather.current.sunrise,
-                sunset = weather.current.sunset,
-                temp = weather.current.temp,
-                uvi = weather.current.uvi,
-                visibility = weather.current.visibility,
-                weather = weather.current.weather,
-                windDeg = weather.current.windDeg,
-                windGust = weather.current.windGust,
-                windSpeed = weather.current.windSpeed
+    private suspend fun refreshWeatherData(
+        key: String, openWeatherRepository:
+        WeatherRepository
+    ) {
 
-            )
-            convertToFahrenheit(currentWeather.value.temp)
-            updateWeatherIconPath(currentWeather.value.weather[0].icon)
-            updateWeatherDescription(currentWeather.value.weather[0].description)
-            Log.d("CURRENT_WEATHER", "${weather}")
-            Log.d("CURRENT_WEATHER_ICON", "${currentWeather.value.weather[0].icon}")
+        try {
+            viewModelScope.launch {
+                val deferedOpenWeatherData = async {
+                    openWeatherRepository.getCurrentWeather(
+                        cordinate.value.lat, cordinate.value.lng, key
+                    )
+                }.await()
+                deferedOpenWeatherData.collect { weatherData ->
+                    currentWeather.value = currentWeather.value.copy(
+                        clouds = weatherData.current.clouds,
+                        dewPoint = weatherData.current.dewPoint,
+                        dt = weatherData.current.dt,
+                        feelsLike = weatherData.current.feelsLike,
+                        humidity = weatherData.current.humidity,
+                        pressure = weatherData.current.pressure,
+                        sunrise = weatherData.current.sunrise,
+                        sunset = weatherData.current.sunset,
+                        temp = weatherData.current.temp,
+                        uvi = weatherData.current.uvi,
+                        visibility = weatherData.current.visibility,
+                        weather = weatherData.current.weather,
+                        windDeg = weatherData.current.windDeg,
+                        windGust = weatherData.current.windGust,
+                        windSpeed = weatherData.current.windSpeed
+                    )
+                    convertToFahrenheit(currentWeather.value.temp)
+                    updateWeatherIconPath(currentWeather.value.weather[0].icon)
+                    updateWeatherDescription(currentWeather.value.weather[0].description)
+                    Log.d("CURRENT_WEATHER", "${weatherData}")
+                    Log.d("CURRENT_WEATHER_ICON", "${currentWeather.value.weather[0].icon}")
+
+                }
+            }
+
         } catch (e: Exception) {
             Log.d("WEATHER_ERROR", "${e.stackTraceToString()}")
         }
-        return weather
+
     }
-private fun updateWeatherDescription(des:String){
-    weatherDescription.value = des
-}
+
+    private fun updateWeatherDescription(des: String) {
+        weatherDescription.value = des
+    }
+
     private fun updateWeatherIconPath(icon: String) {
         weatherIconPath.value = "https://openweathermap.org/img/w/$icon.png"
     }
-   fun updateCordinate(lat:Double,lng:Double){
-       cordinate.value = cordinate.value.copy(lat = lat,lng=lng)
-   }
+
+    fun updateCordinate(lat: Double, lng: Double) {
+        cordinate.value = cordinate.value.copy(lat = lat, lng = lng)
+    }
+
     companion object {
         final val DEFAULT_NUMBER = 255.372
     }

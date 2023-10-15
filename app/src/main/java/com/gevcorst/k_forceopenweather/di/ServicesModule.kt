@@ -1,7 +1,7 @@
 package com.gevcorst.k_forceopenweather.di
 
-import com.gevcorst.k_forceopenweather.services.UserDataStore
-import com.gevcorst.k_forceopenweather.services.UserDataStoreImpl
+import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
+import com.gevcorst.k_forceopenweather.repository.services.UserDataStoreImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
