@@ -11,9 +11,7 @@ import com.gevcorst.k_forceopenweather.Current
 import com.gevcorst.k_forceopenweather.model.country.City
 import com.gevcorst.k_forceopenweather.model.location.Cordinate
 import com.gevcorst.k_forceopenweather.repository.LocationRepository
-import com.gevcorst.k_forceopenweather.repository.LocationRepositoryImpl
 import com.gevcorst.k_forceopenweather.repository.WeatherRepository
-import com.gevcorst.k_forceopenweather.repository.WeatherRepositoryImpl
 import com.gevcorst.k_forceopenweather.repository.services.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -77,15 +75,14 @@ class MainViewModel @Inject constructor(
         lat: Double, lng: Double,
         key: String = BuildConfig.GEOCODING_KEY
     ) {
-        val latlng = "$lat,$lng"
         scope.launch {
             try {
-                val deferedLocationServices = async {
+                val locationServicesFlow =
                     locationRepository.fetchCityNameWithCordinate(
                         lat,lng,key
                     )
-                }.await()
-                deferedLocationServices.collect{reverseAddress->
+
+                locationServicesFlow.collect{ reverseAddress->
                     val currentCityName = reverseAddress.results[0].addressComponents[2].shortName
                     updateCityName(currentCityName)
                     Log.i(
@@ -106,12 +103,12 @@ class MainViewModel @Inject constructor(
     ) {
         scope.launch {
             try {
-                val jsonString = async {
+                val jsonStringFlow =
                     locationRepository.fetchLatitudeLongitude(
                         cityName, countryCode, key
                     )
-                }
-                jsonString.await().collect { location ->
+
+                jsonStringFlow.collect { location ->
                     cordinate.value = cordinate.value.copy(
                         location.results[0].geometry.location.lat,
                         location.results[0].geometry.location.lng
@@ -154,12 +151,11 @@ class MainViewModel @Inject constructor(
 
         try {
             viewModelScope.launch {
-                val deferedOpenWeatherData = async {
+                val openWeatherDataFlow =
                     openWeatherRepositoryImpl.getCurrentWeather(
                         cordinate.value.lat, cordinate.value.lng, key
                     )
-                }.await()
-                deferedOpenWeatherData.collect { weatherData ->
+                openWeatherDataFlow.collect { weatherData ->
                     currentWeather.value = currentWeather.value.copy(
                         clouds = weatherData.current.clouds,
                         dewPoint = weatherData.current.dewPoint,
